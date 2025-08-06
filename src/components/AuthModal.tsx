@@ -35,8 +35,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle email/password auth here
-    console.log('Form submitted:', formData);
+    if (!formData.email || !formData.password) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    if (!isLogin && !formData.name) {
+      alert('Please enter your full name');
+      return;
+    }
+    
+    // TODO: Implement email/password authentication
+    alert('Email/password authentication will be implemented soon. Please use Google sign-in for now.');
   };
 
   return (

@@ -66,21 +66,30 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
         </div>
 
         {/* Video Iframe */}
-        <iframe
-          src={sources[currentSource]?.url}
-          className="w-full h-full"
-          allowFullScreen
-          allow="autoplay; encrypted-media; fullscreen"
-          frameBorder="0"
-          title={title}
-        />
-
-        {/* Loading State */}
-        {!sources[currentSource] && (
+        {sources[currentSource] ? (
+          <iframe
+            src={sources[currentSource].url}
+            className="w-full h-full"
+            allowFullScreen
+            allow="autoplay; encrypted-media; fullscreen"
+            frameBorder="0"
+            title={title}
+          />
+        ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-white">Loading video...</p>
+              <p className="text-white">Loading video sources...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {sources.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-white">No video sources available</p>
             </div>
           </div>
         )}

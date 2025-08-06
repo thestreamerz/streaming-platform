@@ -517,24 +517,37 @@ function App() {
   const handleGenreSelect = async (genreId: number | null, name: string) => {
     setSelectedGenre(genreId);
     setGenreName(name);
-    
-    if (genreId === null) {
-      // Reset to show all content
-      loadInitialContent();
-      return;
-    }
+    setLoading(true);
     
     try {
-      setLoading(true);
-      const [movieResults, tvResults] = await Promise.all([
-        tmdbService.getMoviesByGenre(genreId),
-        tmdbService.getTVShowsByGenre(genreId)
-      ]);
-      
-      setPopularMovies(movieResults);
-      setPopularTVShows(tvResults);
+      if (genreId === null) {
+        // Reset to show all content
+        const [trendingMoviesData, trendingTVData, popularMoviesData, popularTVData] = await Promise.all([
+          tmdbService.getTrendingMovies(),
+          tmdbService.getTrendingTVShows(),
+          tmdbService.getPopularMovies(),
+          tmdbService.getPopularTVShows()
+        ]);
+
+        setTrendingMovies(trendingMoviesData);
+        setTrendingTVShows(trendingTVData);
+        setPopularMovies(popularMoviesData);
+        setPopularTVShows(popularTVData);
+      } else {
+        // Load content by genre
+        const [movieResults, tvResults] = await Promise.all([
+          tmdbService.getMoviesByGenre(genreId),
+          tmdbService.getTVShowsByGenre(genreId)
+        ]);
+        
+        setPopularMovies(movieResults);
+        setPopularTVShows(tvResults);
+        // Keep trending content as is for genre filtering
+      }
     } catch (error) {
       console.error('Error loading genre content:', error);
+      // Fallback to original content on error
+      loadInitialContent();
     } finally {
       setLoading(false);
     }
@@ -641,13 +654,20 @@ function App() {
         return (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">Popular Movies</h2>
+              <h2 className="text-3xl font-bold text-white">
+                {selectedGenre ? `${genreName} Movies` : 'Popular Movies'}
+              </h2>
               <GenreFilter
                 onGenreSelect={handleGenreSelect}
                 selectedGenre={selectedGenre}
                 type="movie"
               />
             </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : popularMovies.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {popularMovies.map((movie) => (
                 <MediaCard 
@@ -662,6 +682,11 @@ function App() {
                 />
               ))}
             </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No movies found for {genreName}</p>
+              </div>
+            )}
           </section>
         );
 
@@ -669,13 +694,20 @@ function App() {
         return (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">Popular TV Shows</h2>
+              <h2 className="text-3xl font-bold text-white">
+                {selectedGenre ? `${genreName} TV Shows` : 'Popular TV Shows'}
+              </h2>
               <GenreFilter
                 onGenreSelect={handleGenreSelect}
                 selectedGenre={selectedGenre}
                 type="tv"
               />
             </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : popularTVShows.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {popularTVShows.map((show) => (
                 <MediaCard 
@@ -690,6 +722,11 @@ function App() {
                 />
               ))}
             </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No TV shows found for {genreName}</p>
+              </div>
+            )}
           </section>
         );
 
@@ -717,9 +754,14 @@ function App() {
       case 'search':
         return (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h2 className="text-3xl font-bold text-white mb-8">
-              Search Results for "{searchQuery}"
-            </h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white">
+                Search Results for "{searchQuery}"
+              </h2>
+              <p className="text-gray-400">
+                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+              </p>
+            </div>
             {searchResults.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {searchResults.map((item) => (

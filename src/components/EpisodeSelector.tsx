@@ -38,7 +38,7 @@ export const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
     setLoading(true);
     try {
       const episodeData = await streamingService.getTVShowEpisodes(showId, seasonNumber);
-      setEpisodes(episodeData);
+      setEpisodes(episodeData || []);
     } catch (error) {
       console.error('Error loading episodes:', error);
       setEpisodes([]);
@@ -79,7 +79,7 @@ export const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
         </div>
       ) : (
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {episodes.map((episode) => (
+          {episodes.length > 0 ? episodes.map((episode) => (
             <div
               key={episode.id}
               className="bg-slate-700 rounded-lg p-4 hover:bg-slate-600 transition-colors cursor-pointer group"
@@ -119,7 +119,11 @@ export const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="text-center py-8">
+              <p className="text-gray-400">No episodes available for this season</p>
+            </div>
+          )}
         </div>
       )}
     </div>
