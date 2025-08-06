@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, Home, Tv, Calendar, Clock, Filter as FilterIcon, Settings } from 'lucide-react';
+import { Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, Home, Tv, Calendar, Clock, Filter as FilterIcon, Settings } from 'lucide-react';
 import { tmdbService, Movie, TVShow, Genre } from './services/api';
 import { streamingService, StreamingSource } from './services/streaming';
 import { VideoPlayer } from './components/VideoPlayer';
@@ -9,15 +9,28 @@ import { UserProfile } from './components/UserProfile';
 import { Footer } from './components/Footer';
 import { GenreFilter } from './components/GenreFilter';
 import { AdvancedSearch, SearchFilters } from './components/AdvancedSearch';
+import { SearchDropdown } from './components/SearchDropdown';
+import { FeaturedSection } from './components/FeaturedSection';
+import { StatsSection } from './components/StatsSection';
+import { NewsletterSection } from './components/NewsletterSection';
 import { onAuthStateChange, signOut } from './services/auth';
 
-const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, user, onAuthClick }) => (
+const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
   <header className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-40">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-2">
-            <Film className="w-8 h-8 text-blue-500" />
+            <img 
+              src="/The Streamerz Logo.png" 
+              alt="THE STREAMERZ" 
+              className="w-10 h-10 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling.style.display = 'block';
+              }}
+            />
+            <Film className="w-8 h-8 text-blue-500" style={{ display: 'none' }} />
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               THE STREAMERZ
             </span>
@@ -65,22 +78,12 @@ const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobile
 
         <div className="flex items-center space-x-4">
           <div className="hidden sm:block relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search movies & TV shows..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && onSearch()}
-              className="pl-10 pr-4 py-2 w-64 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            <SearchDropdown
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onSearch={onSearch}
+              onResultSelect={onSearchResultSelect}
             />
-            <button
-              onClick={onAdvancedSearch}
-              className="ml-2 p-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-              title="Advanced Search"
-            >
-              <FilterIcon className="w-5 h-5" />
-            </button>
           </div>
           
           <button 
@@ -507,6 +510,10 @@ function App() {
     }
   };
 
+  const handleSearchResultSelect = (item: any, type: 'movie' | 'tv') => {
+    setSelectedItem(item);
+    setSelectedType(type);
+  };
   const handleGenreSelect = async (genreId: number | null, name: string) => {
     setSelectedGenre(genreId);
     setGenreName(name);
@@ -587,6 +594,12 @@ function App() {
             <HeroSection movies={trendingMovies} onMovieSelect={setSelectedItem} onWatch={handleWatch} />
             
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <FeaturedSection onItemSelect={setSelectedItem} onWatch={handleWatch} />
+            </section>
+            
+            <StatsSection />
+            
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <h2 className="text-3xl font-bold text-white mb-8">Trending Movies</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
                 {trendingMovies.slice(0, 12).map((movie) => (
@@ -619,6 +632,8 @@ function App() {
                 ))}
               </div>
             </section>
+            
+            <NewsletterSection />
           </>
         );
 
@@ -744,23 +759,18 @@ function App() {
         setMobileMenuOpen={setMobileMenuOpen}
         onSearch={handleSearch}
         onAdvancedSearch={() => setShowAdvancedSearch(true)}
+        onSearchResultSelect={handleSearchResultSelect}
         user={user}
         onAuthClick={handleAuthClick}
       />
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-900 border-b border-slate-800">
-          <div className="px-4 py-2 space-y-2">
-            <div className="relative mb-4">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search movies & TV shows..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="pl-10 pr-4 py-2 w-full bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+            <div className="mb-4">
+              <SearchDropdown
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onSearch={handleSearch}
+                onResultSelect={handleSearchResultSelect}
               />
             </div>
             

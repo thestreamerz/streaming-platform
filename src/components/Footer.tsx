@@ -9,7 +9,16 @@ export const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Film className="w-8 h-8 text-blue-500" />
+              <img 
+                src="/The Streamerz Logo.png" 
+                alt="THE STREAMERZ" 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling.style.display = 'block';
+                }}
+              />
+              <Film className="w-8 h-8 text-blue-500" style={{ display: 'none' }} />
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                 THE STREAMERZ
               </span>

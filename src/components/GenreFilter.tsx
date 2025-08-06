@@ -24,6 +24,7 @@ export const GenreFilter: React.FC<GenreFilterProps> = ({ onGenreSelect, selecte
       setGenres(genreData);
     } catch (error) {
       console.error('Error loading genres:', error);
+      setGenres([]);
     }
   };
 
