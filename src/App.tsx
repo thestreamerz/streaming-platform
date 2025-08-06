@@ -765,6 +765,9 @@ function App() {
       />
 
       {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-slate-900 border-b border-slate-800">
+          <div className="px-4 py-4 space-y-2">
             <div className="mb-4">
               <SearchDropdown
                 searchQuery={searchQuery}
