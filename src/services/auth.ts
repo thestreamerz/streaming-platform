@@ -6,8 +6,12 @@ import {
   GoogleAuthProvider, 
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  User
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
 } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -25,17 +29,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account',
-  client_id: '11710633368-ma4k3qmhdab90lqpc4a5dr61tj1hgo58.apps.googleusercontent.com'
 });
 
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    // Check if this is a new user and create profile
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists()) {
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        provider: 'google',
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      });
+    } else {
+      // Update last login time
+      await setDoc(doc(db, 'users', user.uid), {
+        lastLoginAt: new Date().toISOString(),
+      }, { merge: true });
+    }
+    
     return result.user;
   } catch (error) {
     console.error('Error signing in with Google:', error);
@@ -43,6 +68,50 @@ export const signInWithGoogle = async () => {
   }
 };
 
+export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    
+    // Update the user's display name
+    await updateProfile(user, {
+      displayName: displayName
+    });
+    
+    // Create user profile in Firestore
+    await setDoc(doc(db, 'users', user.uid), {
+      uid: user.uid,
+      email: user.email,
+      displayName: displayName,
+      photoURL: null,
+      provider: 'email',
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    });
+    
+    return user;
+  } catch (error) {
+    console.error('Error signing up with email:', error);
+    throw error;
+  }
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    
+    // Update last login time
+    await setDoc(doc(db, 'users', user.uid), {
+      lastLoginAt: new Date().toISOString(),
+    }, { merge: true });
+    
+    return user;
+  } catch (error) {
+    console.error('Error signing in with email:', error);
+    throw error;
+  }
+};
 export const signOut = async () => {
   try {
     await firebaseSignOut(auth);

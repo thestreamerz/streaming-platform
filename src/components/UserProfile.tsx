@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { User, Settings, Heart, Clock, Star, LogOut, Edit } from 'lucide-react';
+import { db } from '../services/auth';
+import { doc, updateDoc } from 'firebase/firestore';
 
 interface UserProfileProps {
   user: any;
@@ -9,6 +11,11 @@ interface UserProfileProps {
 
 export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClose }) => {
   const [activeTab, setActiveTab] = useState('profile');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    displayName: user?.displayName || '',
+    email: user?.email || ''
+  });
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -18,6 +25,28 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  const handleSaveProfile = async () => {
+    try {
+      if (user?.uid) {
+        await updateDoc(doc(db, 'users', user.uid), {
+          displayName: editForm.displayName,
+          updatedAt: new Date().toISOString(),
+        });
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Unknown';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
@@ -86,15 +115,37 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
                 <div className="bg-slate-800 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-white">Personal Information</h3>
-                    <button className="flex items-center space-x-2 text-blue-400 hover:text-blue-300">
+                    <button 
+                      onClick={() => {
+                        if (isEditing) {
+                          handleSaveProfile();
+                        } else {
+                          setIsEditing(true);
+                          setEditForm({
+                            displayName: user?.displayName || '',
+                            email: user?.email || ''
+                          });
+                        }
+                      }}
+                      className="flex items-center space-x-2 text-blue-400 hover:text-blue-300"
+                    >
                       <Edit className="w-4 h-4" />
-                      <span>Edit</span>
+                      <span>{isEditing ? 'Save' : 'Edit'}</span>
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Full Name</label>
-                      <p className="text-white">{user?.displayName || 'Not provided'}</p>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editForm.displayName}
+                          onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+                        />
+                      ) : (
+                        <p className="text-white">{user?.displayName || 'Not provided'}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Email</label>
@@ -102,13 +153,30 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
                     </div>
                     <div>
                       <label className="block text-gray-400 text-sm mb-1">Member Since</label>
-                      <p className="text-white">January 2024</p>
+                      <p className="text-white">{formatDate(user?.metadata?.creationTime)}</p>
                     </div>
                     <div>
-                      <label className="block text-gray-400 text-sm mb-1">Plan</label>
-                      <p className="text-white">Premium</p>
+                      <label className="block text-gray-400 text-sm mb-1">Account Type</label>
+                      <p className="text-white capitalize">{user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'Email'}</p>
                     </div>
                   </div>
+                  
+                  {isEditing && (
+                    <div className="mt-4 flex space-x-3">
+                      <button
+                        onClick={handleSaveProfile}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-500 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-slate-800 rounded-lg p-6">
