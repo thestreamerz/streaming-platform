@@ -427,8 +427,9 @@ function App() {
     loadInitialContent();
     
     // Listen for auth state changes
-    const unsubscribe = onAuthStateChange((user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChange((authUser) => {
+      console.log('Auth state changed:', authUser);
+      setUser(authUser);
     });
 
     return () => unsubscribe();

@@ -39,19 +39,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     
     if (!formData.email || !formData.password) {
       setError('Please fill in all required fields');
+      setLoading(false);
       return;
     }
     
     if (!isLogin && !formData.name) {
       setError('Please enter your full name');
+      setLoading(false);
+      return;
+    }
+    
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
       return;
     }
     
     try {
-      setLoading(true);
       let user;
       
       if (isLogin) {
@@ -80,6 +88,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
         errorMessage = 'Incorrect password.';
       } else if (error.code === 'auth/invalid-credential') {
         errorMessage = 'Invalid email or password.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please try again later.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection and try again.';
       }
       
       setError(errorMessage);

@@ -1,5 +1,4 @@
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -11,7 +10,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -27,15 +26,13 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account',
-});
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
 
 export const signInWithGoogle = async () => {
   try {
@@ -43,22 +40,27 @@ export const signInWithGoogle = async () => {
     const user = result.user;
     
     // Check if this is a new user and create profile
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (!userDoc.exists()) {
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        provider: 'google',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      });
-    } else {
-      // Update last login time
-      await setDoc(doc(db, 'users', user.uid), {
-        lastLoginAt: new Date().toISOString(),
-      }, { merge: true });
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        await setDoc(doc(db, 'users', user.uid), {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          provider: 'google',
+          createdAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp(),
+        });
+      } else {
+        // Update last login time
+        await setDoc(doc(db, 'users', user.uid), {
+          lastLoginAt: serverTimestamp(),
+        }, { merge: true });
+      }
+    } catch (firestoreError) {
+      console.warn('Firestore operation failed, but auth succeeded:', firestoreError);
+      // Don't throw error here as auth was successful
     }
     
     return result.user;
@@ -79,15 +81,20 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     });
     
     // Create user profile in Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-      uid: user.uid,
-      email: user.email,
-      displayName: displayName,
-      photoURL: null,
-      provider: 'email',
-      createdAt: new Date().toISOString(),
-      lastLoginAt: new Date().toISOString(),
-    });
+    try {
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: displayName,
+        photoURL: null,
+        provider: 'email',
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+      });
+    } catch (firestoreError) {
+      console.warn('Firestore operation failed, but auth succeeded:', firestoreError);
+      // Don't throw error here as auth was successful
+    }
     
     return user;
   } catch (error) {
@@ -102,9 +109,14 @@ export const signInWithEmail = async (email: string, password: string) => {
     const user = result.user;
     
     // Update last login time
-    await setDoc(doc(db, 'users', user.uid), {
-      lastLoginAt: new Date().toISOString(),
-    }, { merge: true });
+    try {
+      await setDoc(doc(db, 'users', user.uid), {
+        lastLoginAt: serverTimestamp(),
+      }, { merge: true });
+    } catch (firestoreError) {
+      console.warn('Firestore operation failed, but auth succeeded:', firestoreError);
+      // Don't throw error here as auth was successful
+    }
     
     return user;
   } catch (error) {
