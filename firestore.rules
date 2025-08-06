@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Watchlists - users can manage their own
+    match /watchlists/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User ratings and reviews
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Public movie/show data (read-only)
+    match /movies/{movieId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    match /shows/{showId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
