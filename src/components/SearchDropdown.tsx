@@ -92,6 +92,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     if (searchQuery.trim()) {
       onSearch();
       setIsOpen(false);
+      inputRef.current?.blur();
     }
   };
 
@@ -118,7 +119,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
             onFocus={() => {
               if (results.length > 0) setIsOpen(true);
             }}
-            className="pl-10 pr-4 py-2 w-64 bg-slate-800 border border-slate-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="pl-10 pr-10 py-2 w-64 bg-slate-800 border border-slate-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
           {searchQuery && (
             <button
