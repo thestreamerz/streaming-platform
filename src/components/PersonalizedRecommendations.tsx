@@ -56,11 +56,11 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
           
         default:
           // For You - mix of different content
-          const [popular, trending] = await Promise.all([
+          const [popularContent, trending] = await Promise.all([
             tmdbService.getPopularMovies(),
             tmdbService.getTrendingMovies()
           ]);
-          data = [...popular.slice(0, 6), ...trending.slice(0, 6)];
+          data = [...popularContent.slice(0, 6), ...trending.slice(0, 6)];
       }
       
       setRecommendations(data.map(item => ({
