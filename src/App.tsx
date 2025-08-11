@@ -13,6 +13,7 @@ import { SearchDropdown } from './components/SearchDropdown';
 import { FeaturedSection } from './components/FeaturedSection';
 import { StatsSection } from './components/StatsSection';
 import { NewsletterSection } from './components/NewsletterSection';
+import { SplashScreen } from './components/SplashScreen';
 import { onAuthStateChange, signOut } from './services/auth';
 
 const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
@@ -402,6 +403,7 @@ const HeroSection = ({ movies, onMovieSelect, onWatch }) => {
 };
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [activeView, setActiveView] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -424,7 +426,10 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadInitialContent();
+    // Only load content after splash screen is done
+    if (!showSplash) {
+      loadInitialContent();
+    }
     
     // Listen for auth state changes
     const unsubscribe = onAuthStateChange((authUser) => {
@@ -433,7 +438,7 @@ function App() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [showSplash]);
 
   const loadInitialContent = async () => {
     try {
@@ -790,6 +795,16 @@ function App() {
         return null;
     }
   };
+
+  // Show splash screen first
+  if (showSplash) {
+    return (
+      <SplashScreen 
+        onComplete={() => setShowSplash(false)}
+        duration={3000}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
