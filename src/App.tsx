@@ -356,10 +356,16 @@ function App() {
     
     try {
       setLoading(true);
+      console.log('Searching for:', searchQuery);
       const [movieResults, tvResults] = await Promise.all([
         tmdbService.searchMovies(searchQuery),
         tmdbService.searchTVShows(searchQuery)
       ]);
+      
+      console.log('Search results:', {
+        movies: movieResults.length,
+        tvShows: tvResults.length
+      });
       
       setSearchResults([
         ...movieResults.map(movie => ({ ...movie, type: 'movie' })),
@@ -368,6 +374,7 @@ function App() {
       setActiveView('search');
     } catch (error) {
       console.error('Error searching:', error);
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -416,6 +423,7 @@ function App() {
     setLoading(true);
     
     try {
+      console.log('Loading genre content:', { genreId, name });
       if (genreId === null) {
         // Reset to show all content
         const [trendingMoviesData, trendingTVData, popularMoviesData, popularTVData] = await Promise.all([
@@ -436,6 +444,11 @@ function App() {
           tmdbService.getTVShowsByGenre(genreId)
         ]);
         
+        console.log('Genre results:', {
+          movies: movieResults.length,
+          tvShows: tvResults.length
+        });
+        
         setPopularMovies(movieResults);
         setPopularTVShows(tvResults);
         // Keep trending content as is for genre filtering
@@ -443,7 +456,14 @@ function App() {
     } catch (error) {
       console.error('Error loading genre content:', error);
       // Fallback to original content on error
-      loadInitialContent();
+      try {
+        await loadInitialContent();
+      } catch (fallbackError) {
+        console.error('Fallback loading failed:', fallbackError);
+        // Set empty arrays to prevent crashes
+        setPopularMovies([]);
+        setPopularTVShows([]);
+      }
     } finally {
       setLoading(false);
     }
