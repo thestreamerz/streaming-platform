@@ -22,7 +22,26 @@ const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobile
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
         <div className="flex items-center space-x-8">
-          <AnimatedLogo size="medium" animate={true} showText={true} />
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-12 h-12 border-4 border-transparent border-t-blue-500 border-r-purple-500 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img 
+                  src="/The Streamerz Logo.png" 
+                  alt="THE STREAMERZ" 
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
+                />
+                <Film className="w-8 h-8 text-blue-500" style={{ display: 'none' }} />
+              </div>
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              THE STREAMERZ
+            </span>
+          </div>
           
           <nav className="hidden md:flex space-x-6">
             <button
