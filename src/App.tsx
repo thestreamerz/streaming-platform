@@ -424,6 +424,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
   const [genreName, setGenreName] = useState('All Genres');
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTermsOfService, setShowTermsOfService] = useState(false);
   
   // Content state
   const [trendingMovies, setTrendingMovies] = useState([]);
