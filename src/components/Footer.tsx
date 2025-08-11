@@ -105,7 +105,7 @@ export const Footer: React.FC = () => {
                 © 2024 THE STREAMERZ. All rights reserved.
               </p>
               <div className="flex items-center space-x-1 text-gray-400 text-sm">
-                <span>The Streamerz Powered By</span>
+                <span>This product uses the TMDB API but is not endorsed or certified by</span>
                 <a 
                   href="https://www.themoviedb.org/" 
                   target="_blank" 

@@ -866,7 +866,10 @@ function App() {
         {renderContent()}
       </main>
       
-      <Footer />
+      <Footer 
+        onShowPrivacyPolicy={() => setShowPrivacyPolicy(true)}
+        onShowTermsOfService={() => setShowTermsOfService(true)}
+      />
 
       {selectedItem && (
         <MediaDetails 
