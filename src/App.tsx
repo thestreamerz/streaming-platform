@@ -15,6 +15,8 @@ import { FeaturedSection } from './components/FeaturedSection';
 import { StatsSection } from './components/StatsSection';
 import { NewsletterSection } from './components/NewsletterSection';
 import { SplashScreen } from './components/SplashScreen';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { TermsOfService } from './components/TermsOfService';
 import { onAuthStateChange, signOut } from './services/auth';
 
 const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
@@ -907,6 +909,14 @@ function App() {
           onSearch={handleAdvancedSearch}
           onClose={() => setShowAdvancedSearch(false)}
         />
+      )}
+
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      )}
+
+      {showTermsOfService && (
+        <TermsOfService onClose={() => setShowTermsOfService(false)} />
       )}
     </div>
   );

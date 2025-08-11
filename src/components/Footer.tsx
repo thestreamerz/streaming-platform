@@ -1,5 +1,5 @@
 import React from 'react';
-import { Film, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube, Heart } from 'lucide-react';
+import { Film, Mail, Facebook, Twitter, Instagram, Youtube, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -78,14 +78,6 @@ export const Footer: React.FC = () => {
                 <Mail className="w-4 h-4 text-blue-400" />
                 <span className="text-gray-400 text-sm">support@thestreamerz.com</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">Los Angeles, CA</span>
-              </div>
             </div>
             
             {/* Newsletter */}
@@ -126,12 +118,18 @@ export const Footer: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <button 
+                onClick={() => setShowPrivacyPolicy(true)}
+                className="text-gray-400 hover:text-white text-sm transition-colors"
+              >
                 Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              </button>
+              <button 
+                onClick={() => setShowTermsOfService(true)}
+                className="text-gray-400 hover:text-white text-sm transition-colors"
+              >
                 Terms of Service
-              </a>
+              </button>
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
                 DMCA
               </a>
