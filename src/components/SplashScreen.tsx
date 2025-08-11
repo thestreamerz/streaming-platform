@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatedLogo } from './AnimatedLogo';
+import { Film } from 'lucide-react';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -76,8 +76,22 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       <div className="relative z-10 text-center max-w-md mx-auto px-6">
         {/* Main Logo Animation */}
         <div className="mb-12 transform animate-logo-entrance flex justify-center">
-          <div className="scale-150">
-            <AnimatedLogo size="large" animate={true} showText={false} />
+          <div className="relative">
+            {/* Animated Ring */}
+            <div className="w-32 h-32 border-4 border-transparent border-t-blue-500 border-r-purple-500 rounded-full animate-spin"></div>
+            {/* Logo in Center */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img 
+                src="/The Streamerz Logo.png" 
+                alt="THE STREAMERZ" 
+                className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling.style.display = 'block';
+                }}
+              />
+              <Film className="w-16 h-16 text-blue-500" style={{ display: 'none' }} />
+            </div>
           </div>
         </div>
 

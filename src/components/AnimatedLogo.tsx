@@ -28,8 +28,17 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
     <div className="flex items-center space-x-3">
       <div className={`relative ${animate ? 'animate-spin-slow' : ''}`}>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-75"></div>
-        <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-full p-3 shadow-lg">
-          <Film className={`${sizeClasses[size]} text-white`} />
+        <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-full p-3 shadow-lg flex items-center justify-center">
+          <img 
+            src="/The Streamerz Logo.png" 
+            alt="THE STREAMERZ" 
+            className={`${sizeClasses[size]} object-contain`}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling.style.display = 'block';
+            }}
+          />
+          <Film className={`${sizeClasses[size]} text-white`} style={{ display: 'none' }} />
         </div>
       </div>
       {showText && (

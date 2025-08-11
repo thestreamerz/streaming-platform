@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, Home, Tv, Calendar, Clock, Filter as FilterIcon, Settings } from 'lucide-react';
+import { AnimatedLogo } from './components/AnimatedLogo';
 import { tmdbService, Movie, TVShow, Genre } from './services/api';
 import { streamingService, StreamingSource } from './services/streaming';
 import { VideoPlayer } from './components/VideoPlayer';
@@ -21,21 +22,7 @@ const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobile
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
         <div className="flex items-center space-x-8">
-          <div className="flex items-center space-x-2">
-            <img 
-              src="/The Streamerz Logo.png" 
-              alt="THE STREAMERZ" 
-              className="w-10 h-10 object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling.style.display = 'block';
-              }}
-            />
-            <Film className="w-8 h-8 text-blue-500" style={{ display: 'none' }} />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              THE STREAMERZ
-            </span>
-          </div>
+          <AnimatedLogo size="medium" animate={true} showText={true} />
           
           <nav className="hidden md:flex space-x-6">
             <button
