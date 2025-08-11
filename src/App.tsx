@@ -17,6 +17,12 @@ import { NewsletterSection } from './components/NewsletterSection';
 import { SplashScreen } from './components/SplashScreen';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
+import { InteractiveHero } from './components/InteractiveHero';
+import { EnhancedMediaCard } from './components/EnhancedMediaCard';
+import { AdvancedFilters, FilterOptions } from './components/AdvancedFilters';
+import { ContinueWatching } from './components/ContinueWatching';
+import { PersonalizedRecommendations } from './components/PersonalizedRecommendations';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { onAuthStateChange, signOut } from './services/auth';
 
 const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
@@ -118,64 +124,6 @@ const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobile
   </header>
 );
 
-const MediaCard = ({ item, type, onSelect, onWatch }) => {
-  const title = type === 'movie' ? item.title : item.name;
-  const releaseDate = type === 'movie' ? item.release_date : item.first_air_date;
-  const year = releaseDate ? new Date(releaseDate).getFullYear() : 'TBA';
-  
-  return (
-    <div className="group cursor-pointer transition-all duration-300 hover:scale-105">
-      <div className="relative overflow-hidden rounded-xl bg-slate-800 shadow-xl">
-        <img 
-          src={tmdbService.getImageUrl(item.poster_path, 'w500')} 
-          alt={title}
-          className="w-full h-72 object-cover transition-transform duration-300 group-hover:scale-110"
-          onError={(e) => {
-            e.target.src = '/placeholder-movie.jpg';
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-white font-medium">{item.vote_average?.toFixed(1) || 'N/A'}</span>
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onWatch(item, type);
-                }}
-                className="p-2 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors"
-              >
-                <Play className="w-4 h-4 text-white" />
-              </button>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect(item, type);
-                }}
-                className="p-2 bg-slate-700 rounded-full hover:bg-slate-600 transition-colors"
-              >
-                <Plus className="w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-          <h3 className="text-white font-semibold mb-1 truncate">{title}</h3>
-          <p className="text-gray-300 text-sm">{year}</p>
-        </div>
-        
-        {item.trending && (
-          <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
-            Trending
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const MediaDetails = ({ item, type, onClose, onWatch }) => {
   const [details, setDetails] = useState(null);
@@ -340,75 +288,6 @@ const MediaDetails = ({ item, type, onClose, onWatch }) => {
   );
 };
 
-const HeroSection = ({ movies, onMovieSelect, onWatch }) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const heroMovies = movies.slice(0, 3);
-
-  useEffect(() => {
-    if (heroMovies.length === 0) return;
-    
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroMovies.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [heroMovies.length]);
-
-  if (heroMovies.length === 0) return null;
-
-  const currentMovie = heroMovies[currentSlide];
-
-  return (
-    <div className="relative h-96 md:h-[500px] overflow-hidden">
-      <img 
-        src={tmdbService.getImageUrl(currentMovie.backdrop_path, 'w1280')} 
-        alt={currentMovie.title}
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-      
-      <div className="absolute inset-0 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-lg">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-              {currentMovie.title}
-            </h1>
-            <p className="text-gray-200 text-lg mb-6 leading-relaxed line-clamp-3">
-              {currentMovie.overview}
-            </p>
-            <div className="flex space-x-4">
-              <button 
-                onClick={() => onWatch(currentMovie, 'movie')}
-                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
-              >
-                <Play className="w-5 h-5" />
-                <span>Watch Now</span>
-              </button>
-              <button 
-                onClick={() => onMovieSelect(currentMovie, 'movie')}
-                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-colors backdrop-blur-sm"
-              >
-                <Plus className="w-5 h-5" />
-                <span>More Info</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {heroMovies.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === currentSlide ? 'bg-white' : 'bg-white/50'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -426,6 +305,7 @@ function App() {
   const [genreName, setGenreName] = useState('All Genres');
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfService, setShowTermsOfService] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions | null>(null);
   
   // Content state
   const [trendingMovies, setTrendingMovies] = useState([]);
@@ -610,9 +490,7 @@ function App() {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
+        <LoadingSpinner size="large" text="Loading amazing content..." />
       );
     }
 
@@ -620,9 +498,27 @@ function App() {
       case 'home':
         return (
           <>
-            <HeroSection movies={trendingMovies} onMovieSelect={setSelectedItem} onWatch={handleWatch} />
+            <InteractiveHero 
+              movies={trendingMovies} 
+              onMovieSelect={(item, type) => {
+                setSelectedItem(item);
+                setSelectedType(type);
+              }} 
+              onWatch={handleWatch} 
+            />
             
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              {user && <ContinueWatching onWatch={handleWatch} />}
+              
+              <PersonalizedRecommendations 
+                onItemSelect={(item, type) => {
+                  setSelectedItem(item);
+                  setSelectedType(type);
+                }}
+                onWatch={handleWatch}
+                user={user}
+              />
+              
               <FeaturedSection onItemSelect={setSelectedItem} onWatch={handleWatch} />
             </section>
             
@@ -632,7 +528,7 @@ function App() {
               <h2 className="text-3xl font-bold text-white mb-8">Trending Movies</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
                 {trendingMovies.slice(0, 12).map((movie) => (
-                  <MediaCard 
+                  <EnhancedMediaCard 
                     key={movie.id} 
                     item={movie} 
                     type="movie"
@@ -648,7 +544,7 @@ function App() {
               <h2 className="text-3xl font-bold text-white mb-8">Trending TV Shows</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {trendingTVShows.slice(0, 12).map((show) => (
-                  <MediaCard 
+                  <EnhancedMediaCard 
                     key={show.id} 
                     item={show} 
                     type="tv"
@@ -673,20 +569,24 @@ function App() {
               <h2 className="text-3xl font-bold text-white">
                 {selectedGenre ? `${genreName} Movies` : 'Popular Movies'}
               </h2>
-              <GenreFilter
-                onGenreSelect={handleGenreSelect}
-                selectedGenre={selectedGenre}
-                type="movie"
-              />
+              <div className="flex items-center space-x-4">
+                <AdvancedFilters
+                  onFiltersChange={setFilters}
+                  type="movie"
+                />
+                <GenreFilter
+                  onGenreSelect={handleGenreSelect}
+                  selectedGenre={selectedGenre}
+                  type="movie"
+                />
+              </div>
             </div>
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              </div>
+              <LoadingSpinner text="Loading movies..." />
             ) : popularMovies.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {popularMovies.map((movie) => (
-                <MediaCard 
+                <EnhancedMediaCard 
                   key={movie.id} 
                   item={movie} 
                   type="movie"
@@ -713,20 +613,24 @@ function App() {
               <h2 className="text-3xl font-bold text-white">
                 {selectedGenre ? `${genreName} TV Shows` : 'Popular TV Shows'}
               </h2>
-              <GenreFilter
-                onGenreSelect={handleGenreSelect}
-                selectedGenre={selectedGenre}
-                type="tv"
-              />
+              <div className="flex items-center space-x-4">
+                <AdvancedFilters
+                  onFiltersChange={setFilters}
+                  type="tv"
+                />
+                <GenreFilter
+                  onGenreSelect={handleGenreSelect}
+                  selectedGenre={selectedGenre}
+                  type="tv"
+                />
+              </div>
             </div>
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              </div>
+              <LoadingSpinner text="Loading TV shows..." />
             ) : popularTVShows.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {popularTVShows.map((show) => (
-                <MediaCard 
+                <EnhancedMediaCard 
                   key={show.id} 
                   item={show} 
                   type="tv"
@@ -752,7 +656,7 @@ function App() {
             <h2 className="text-3xl font-bold text-white mb-8">Trending Now</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {[...trendingMovies, ...trendingTVShows].map((item) => (
-                <MediaCard 
+                <EnhancedMediaCard 
                   key={`${item.id}-${item.title ? 'movie' : 'tv'}`} 
                   item={item} 
                   type={item.title ? 'movie' : 'tv'}
@@ -781,7 +685,7 @@ function App() {
             {searchResults.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                 {searchResults.map((item) => (
-                  <MediaCard 
+                  <EnhancedMediaCard 
                     key={`${item.id}-${item.type}`} 
                     item={item} 
                     type={item.type}
