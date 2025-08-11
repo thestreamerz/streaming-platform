@@ -49,7 +49,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
         {/* Main Image */}
         <div className="relative">
           <img 
-            src={tmdbService.getImageUrl(item.poster_path, 'w500')} 
+            src={contentService.getImageUrl(item.poster_path, 'w500')} 
             alt={title}
             className={`${sizeClasses[size]} object-cover transition-all duration-500 ${
               isHovered ? 'scale-110 brightness-75' : 'scale-100'
@@ -178,7 +178,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
         <div className="absolute top-0 left-0 right-0 bg-slate-800 rounded-xl shadow-2xl border border-slate-700 z-20 transform -translate-y-2 animate-fade-in">
           <div className="relative">
             <img 
-              src={tmdbService.getImageUrl(item.backdrop_path || item.poster_path, 'w500')} 
+              src={contentService.getImageUrl(item.backdrop_path || item.poster_path, 'w500')} 
               alt={title}
               className="w-full h-32 object-cover rounded-t-xl"
             />

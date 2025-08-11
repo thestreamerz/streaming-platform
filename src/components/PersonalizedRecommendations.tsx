@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, Heart, Star, RefreshCw } from 'lucide-react';
 import { EnhancedMediaCard } from './EnhancedMediaCard';
-import { tmdbService } from '../services/api';
+import { contentService } from '../services/contentService';
 
 interface PersonalizedRecommendationsProps {
   onItemSelect: (item: any, type: 'movie' | 'tv') => void;
@@ -37,38 +37,38 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
       switch (activeCategory) {
         case 'trending':
           const [trendingMovies, trendingTV] = await Promise.all([
-            tmdbService.getTrendingMovies(),
-            tmdbService.getTrendingTVShows()
+            contentService.getTrendingMovies(),
+            contentService.getTrendingTVShows()
           ]);
           data = [...trendingMovies.slice(0, 6), ...trendingTV.slice(0, 6)];
           break;
           
         case 'top-rated':
-          const topRated = await tmdbService.getTopRatedMovies();
-          data = topRated.slice(0, 12);
+          const popularMovies = await contentService.getPopularMovies();
+          data = popularMovies.slice(0, 12);
           break;
           
         case 'because-you-liked':
           // Mock personalized recommendations based on user preferences
-          const popular = await tmdbService.getPopularMovies();
-          data = popular.slice(0, 12);
+          const likedContent = await contentService.getPopularMovies();
+          data = likedContent.slice(0, 12);
           break;
           
         default:
           // For You - mix of different content
           const [popularContent, trending] = await Promise.all([
-            tmdbService.getPopularMovies(),
-            tmdbService.getTrendingMovies()
+            contentService.getPopularMovies(),
+            contentService.getTrendingMovies()
           ]);
           data = [...popularContent.slice(0, 6), ...trending.slice(0, 6)];
       }
       
-      setRecommendations(data.map(item => ({
-        ...item,
-        type: item.title ? 'movie' : 'tv'
-      })));
+      setRecommendations(data);
     } catch (error) {
       console.error('Error loading recommendations:', error);
+      // Provide fallback recommendations
+      const fallbackContent = await contentService.getAllContent();
+      setRecommendations(fallbackContent.slice(0, 12));
     } finally {
       setLoading(false);
     }

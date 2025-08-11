@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Plus, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
-import { tmdbService } from '../services/api';
+import { contentService } from '../services/contentService';
 
 interface InteractiveHeroProps {
   movies: any[];
@@ -173,7 +173,7 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({ movies, onMovi
             onClick={() => setCurrentSlide((currentSlide + index + 1) % heroMovies.length)}
           >
             <img
-              src={tmdbService.getImageUrl(movie.poster_path, 'w200')}
+              src={contentService.getImageUrl(movie.poster_path, 'w200')}
               alt={movie.title}
               className="w-full h-full object-cover"
             />

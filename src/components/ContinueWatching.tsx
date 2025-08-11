@@ -72,7 +72,7 @@ export const ContinueWatching: React.FC<ContinueWatchingProps> = ({ onWatch }) =
           >
             <div className="relative">
               <img
-                src={tmdbService.getImageUrl(item.backdrop_path, 'w500')}
+                src={contentService.getImageUrl(item.backdrop_path, 'w500')}
                 alt={item.title}
                 className="w-full h-24 object-cover"
               />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, Home, Tv, Calendar, Clock, Filter as FilterIcon, Settings } from 'lucide-react';
 import { AnimatedLogo } from './components/AnimatedLogo';
-import { tmdbService, Movie, TVShow, Genre } from './services/api';
+import { contentService, ContentItem } from './services/contentService';
 import { streamingService, StreamingSource } from './services/streaming';
 import { VideoPlayer } from './components/VideoPlayer';
 import { EpisodeSelector } from './components/EpisodeSelector';
@@ -333,12 +333,21 @@ function App() {
   const loadInitialContent = async () => {
     try {
       setLoading(true);
+      console.log('🚀 Loading initial content...');
+      
       const [trendingMoviesData, trendingTVData, popularMoviesData, popularTVData] = await Promise.all([
-        tmdbService.getTrendingMovies(),
-        tmdbService.getTrendingTVShows(),
-        tmdbService.getPopularMovies(),
-        tmdbService.getPopularTVShows()
+        contentService.getTrendingMovies(),
+        contentService.getTrendingTVShows(),
+        contentService.getPopularMovies(),
+        contentService.getPopularTVShows()
       ]);
+
+      console.log('📊 Content loaded:', {
+        trendingMovies: trendingMoviesData.length,
+        trendingTV: trendingTVData.length,
+        popularMovies: popularMoviesData.length,
+        popularTV: popularTVData.length
+      });
 
       setTrendingMovies(trendingMoviesData);
       setTrendingTVShows(trendingTVData);
@@ -346,6 +355,13 @@ function App() {
       setPopularTVShows(popularTVData);
     } catch (error) {
       console.error('Error loading content:', error);
+      // Even on error, we should have fallback content
+      const fallbackMovies = await contentService.getPopularMovies();
+      const fallbackTV = await contentService.getPopularTVShows();
+      setTrendingMovies(fallbackMovies.slice(0, 10));
+      setTrendingTVShows(fallbackTV.slice(0, 10));
+      setPopularMovies(fallbackMovies);
+      setPopularTVShows(fallbackTV);
     } finally {
       setLoading(false);
     }
@@ -386,9 +402,9 @@ function App() {
       let results = [];
       
       if (filters.type === 'movie') {
-        results = await tmdbService.searchMovies(filters.query);
+        results = await contentService.searchMovies(filters.query);
       } else {
-        results = await tmdbService.searchTVShows(filters.query);
+        results = await contentService.searchTVShows(filters.query);
       }
       
       // Apply additional filters
@@ -403,11 +419,14 @@ function App() {
         results = results.filter(item => item.vote_average >= filters.rating);
       }
       
-      setSearchResults(results.map(item => ({ ...item, type: filters.type })));
+      setSearchResults(results);
       setActiveView('search');
       setShowAdvancedSearch(false);
     } catch (error) {
       console.error('Error in advanced search:', error);
+      // Provide fallback results
+      const fallbackResults = await contentService.getAllContent();
+      setSearchResults(fallbackResults.filter(item => item.type === filters.type));
     } finally {
       setLoading(false);
     }
