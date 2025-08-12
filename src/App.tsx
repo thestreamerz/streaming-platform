@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, Home, Tv, Calendar, Clock, Filter as FilterIcon, Settings } from 'lucide-react';
 import { AnimatedLogo } from './components/AnimatedLogo';
-import { contentService, ContentItem } from './services/contentService';
+import { multiSourceAPI } from './services/multiSourceAPI';
 import { streamingService, StreamingSource } from './services/streaming';
 import { VideoPlayer } from './components/VideoPlayer';
 import { EpisodeSelector } from './components/EpisodeSelector';
@@ -336,10 +336,10 @@ function App() {
       console.log('🚀 Loading initial content...');
       
       const [trendingMoviesData, trendingTVData, popularMoviesData, popularTVData] = await Promise.all([
-        contentService.getTrendingMovies(),
-        contentService.getTrendingTVShows(),
-        contentService.getPopularMovies(),
-        contentService.getPopularTVShows()
+        multiSourceAPI.getTrendingMovies(),
+        multiSourceAPI.getTrendingTVShows(),
+        multiSourceAPI.getPopularMovies(),
+        multiSourceAPI.getPopularTVShows()
       ]);
 
       console.log('📊 Content loaded:', {
@@ -356,8 +356,8 @@ function App() {
     } catch (error) {
       console.error('Error loading content:', error);
       // Even on error, we should have fallback content
-      const fallbackMovies = await contentService.getPopularMovies();
-      const fallbackTV = await contentService.getPopularTVShows();
+      const fallbackMovies = await multiSourceAPI.getPopularMovies();
+      const fallbackTV = await multiSourceAPI.getPopularTVShows();
       setTrendingMovies(fallbackMovies.slice(0, 10));
       setTrendingTVShows(fallbackTV.slice(0, 10));
       setPopularMovies(fallbackMovies);
@@ -402,9 +402,9 @@ function App() {
       let results = [];
       
       if (filters.type === 'movie') {
-        results = await contentService.searchMovies(filters.query);
+        results = await multiSourceAPI.searchMovies(filters.query);
       } else {
-        results = await contentService.searchTVShows(filters.query);
+        results = await multiSourceAPI.searchTVShows(filters.query);
       }
       
       // Apply additional filters
@@ -425,7 +425,7 @@ function App() {
     } catch (error) {
       console.error('Error in advanced search:', error);
       // Provide fallback results
-      const fallbackResults = await contentService.getAllContent();
+      const fallbackResults = await multiSourceAPI.getAllContent();
       setSearchResults(fallbackResults.filter(item => item.type === filters.type));
     } finally {
       setLoading(false);

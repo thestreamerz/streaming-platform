@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Play, Maximize, Volume2, Settings } from 'lucide-react';
 import { StreamingSource } from '../services/streaming';
+import { ServerSelector } from './ServerSelector';
 
 interface VideoPlayerProps {
   sources: StreamingSource[];
@@ -10,6 +11,7 @@ interface VideoPlayerProps {
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClose }) => {
   const [currentSource, setCurrentSource] = useState(0);
+  const [showServerSelector, setShowServerSelector] = useState(false);
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
@@ -33,11 +35,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
                 >
                   {sources.map((source, index) => (
                     <option key={source.id} value={index}>
-                      Server {index + 1}
+                      {source.title}
                     </option>
                   ))}
                 </select>
               )}
+              <button
+                onClick={() => setShowServerSelector(!showServerSelector)}
+                className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+              >
+                Choose Server
+              </button>
               <button
                 onClick={onClose}
                 className="p-2 text-white hover:bg-red-600 rounded-lg transition-colors"
@@ -47,6 +55,23 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
             </div>
           </div>
         </div>
+
+        {/* Server Selector Modal */}
+        {showServerSelector && (
+          <div className="absolute top-20 left-4 right-4 bg-slate-900 rounded-xl shadow-2xl z-20 max-h-96 overflow-y-auto">
+            <ServerSelector
+              onServerSelect={(serverId) => {
+                const serverIndex = sources.findIndex(s => s.id.includes(serverId));
+                if (serverIndex !== -1) {
+                  setCurrentSource(serverIndex);
+                }
+                setShowServerSelector(false);
+              }}
+              selectedServer={sources[currentSource]?.id.split('-').pop()}
+              contentType={sources[currentSource]?.type || 'movie'}
+            />
+          </div>
+        )}
 
         {/* Video Iframe */}
         <div className="absolute top-16 left-0 right-0 bottom-0">
