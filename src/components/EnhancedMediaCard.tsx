@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Star, Play, Plus, Heart, Info, Clock, Calendar } from 'lucide-react';
-import { tmdbService } from '../services/api';
+import { contentService } from '../services/contentService';
 
 interface EnhancedMediaCardProps {
   item: any;

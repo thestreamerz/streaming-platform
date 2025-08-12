@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Plus, Info, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
 import { contentService } from '../services/contentService';
+import { tmdbService } from '../services/api';
 
 interface InteractiveHeroProps {
   movies: any[];
