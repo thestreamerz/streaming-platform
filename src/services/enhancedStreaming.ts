@@ -1,4 +1,4 @@
-// Enhanced streaming service with multiple servers like watchug.to
+// Enhanced streaming service with working embed URLs
 export interface StreamingServer {
   id: string;
   name: string;
@@ -35,7 +35,7 @@ class EnhancedStreamingService {
       name: 'Bravo',
       quality: 'HD',
       type: 'primary',
-      baseUrl: 'https://www.2embed.to/embed',
+      baseUrl: 'https://www.2embed.cc/embed',
       active: true,
       priority: 2
     },
@@ -44,7 +44,7 @@ class EnhancedStreamingService {
       name: 'Charlie',
       quality: 'HD',
       type: 'backup',
-      baseUrl: 'https://embedsb.com/embed',
+      baseUrl: 'https://vidsrc.me/embed',
       active: true,
       priority: 3
     },
@@ -53,7 +53,7 @@ class EnhancedStreamingService {
       name: 'Delta',
       quality: 'HD',
       type: 'backup',
-      baseUrl: 'https://doodstream.com/e',
+      baseUrl: 'https://embed.su/embed',
       active: true,
       priority: 4
     },
@@ -62,7 +62,7 @@ class EnhancedStreamingService {
       name: 'Echo',
       quality: 'HD',
       type: 'backup',
-      baseUrl: 'https://streamtape.com/e',
+      baseUrl: 'https://vidsrc.xyz/embed',
       active: true,
       priority: 5
     },
@@ -71,7 +71,7 @@ class EnhancedStreamingService {
       name: 'Multi',
       quality: 'HD',
       type: 'premium',
-      baseUrl: 'https://multiembed.mov/directstream.php',
+      baseUrl: 'https://multiembed.mov',
       active: true,
       priority: 6
     },
@@ -80,7 +80,7 @@ class EnhancedStreamingService {
       name: '4K',
       quality: '4K',
       type: 'premium',
-      baseUrl: 'https://vidsrc.me/embed',
+      baseUrl: 'https://vidsrc.pro/embed',
       active: true,
       priority: 7
     },
@@ -98,7 +98,7 @@ class EnhancedStreamingService {
       name: 'Ad Free v2',
       quality: 'HD',
       type: 'premium',
-      baseUrl: 'https://embed.su/embed',
+      baseUrl: 'https://vidsrc.cc/v2/embed',
       active: true,
       priority: 9
     }
@@ -139,17 +139,17 @@ class EnhancedStreamingService {
       case 'alpha':
         return `${server.baseUrl}/movie/${tmdbId}`;
       case 'bravo':
-        return `${server.baseUrl}/tmdb/movie?id=${tmdbId}`;
+        return `${server.baseUrl}/${tmdbId}`;
       case 'charlie':
-        return `${server.baseUrl}/movie/${tmdbId}`;
+        return `${server.baseUrl}/movie?tmdb=${tmdbId}`;
       case 'delta':
         return `${server.baseUrl}/movie/${tmdbId}`;
       case 'echo':
         return `${server.baseUrl}/movie/${tmdbId}`;
       case 'multi':
-        return `${server.baseUrl}?video_id=${tmdbId}&tmdb=1&type=movie`;
+        return `${server.baseUrl}/?video_id=${tmdbId}&tmdb=1`;
       case '4k':
-        return `${server.baseUrl}/movie?tmdb=${tmdbId}`;
+        return `${server.baseUrl}/movie/${tmdbId}`;
       case 'adfree':
         return `${server.baseUrl}/movie/${tmdbId}`;
       case 'adfree-v2':
@@ -164,17 +164,17 @@ class EnhancedStreamingService {
       case 'alpha':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'bravo':
-        return `${server.baseUrl}/tmdb/tv?id=${tmdbId}&s=${season}&e=${episode}`;
+        return `${server.baseUrl}/${tmdbId}&s=${season}&e=${episode}`;
       case 'charlie':
-        return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
+        return `${server.baseUrl}/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
       case 'delta':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'echo':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'multi':
-        return `${server.baseUrl}?video_id=${tmdbId}&tmdb=1&type=tv&s=${season}&e=${episode}`;
+        return `${server.baseUrl}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
       case '4k':
-        return `${server.baseUrl}/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'adfree':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'adfree-v2':
@@ -207,7 +207,9 @@ class EnhancedStreamingService {
 
     for (const endpoint of endpoints) {
       try {
-        const response = await fetch(endpoint, { timeout: 10000 });
+        const response = await fetch(endpoint, { 
+          signal: AbortSignal.timeout(10000)
+        });
         if (response.ok) {
           const data = await response.json();
           return data.episodes || [];
@@ -271,12 +273,17 @@ class EnhancedStreamingService {
     if (!server) return false;
 
     try {
-      const testUrl = this.buildMovieUrl(server, 550); // Test with Fight Club
+      // Test with a popular movie (Fight Club - TMDB ID: 550)
+      const testUrl = this.buildMovieUrl(server, 550);
+      
+      // Use a simple fetch with no-cors mode to avoid CORS issues
       const response = await fetch(testUrl, { 
         method: 'HEAD', 
-        timeout: 5000,
-        mode: 'no-cors'
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(5000)
       });
+      
+      // If we get here without error, assume the server is reachable
       return true;
     } catch (error) {
       console.warn(`Server ${server.name} test failed:`, error);
@@ -288,6 +295,46 @@ class EnhancedStreamingService {
   getRecommendedServer(): StreamingServer | null {
     const primaryServers = this.getServersByType('primary');
     return primaryServers.length > 0 ? primaryServers[0] : null;
+  }
+
+  // Get working streaming URL with fallbacks
+  async getWorkingStreamUrl(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<string | null> {
+    const servers = this.getActiveServers().sort((a, b) => a.priority - b.priority);
+    
+    for (const server of servers) {
+      try {
+        let url: string;
+        if (type === 'movie') {
+          url = this.buildMovieUrl(server, tmdbId);
+        } else {
+          url = this.buildTVUrl(server, tmdbId, season!, episode!);
+        }
+        
+        // Test if URL is accessible
+        const testResponse = await fetch(url, { 
+          method: 'HEAD', 
+          mode: 'no-cors',
+          signal: AbortSignal.timeout(3000)
+        });
+        
+        return url;
+      } catch (error) {
+        console.warn(`Server ${server.name} failed, trying next...`);
+        continue;
+      }
+    }
+    
+    // If all servers fail, return the first server URL anyway
+    const fallbackServer = servers[0];
+    if (fallbackServer) {
+      if (type === 'movie') {
+        return this.buildMovieUrl(fallbackServer, tmdbId);
+      } else {
+        return this.buildTVUrl(fallbackServer, tmdbId, season!, episode!);
+      }
+    }
+    
+    return null;
   }
 }
 

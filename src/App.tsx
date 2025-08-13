@@ -24,6 +24,7 @@ import { ContinueWatching } from './components/ContinueWatching';
 import { PersonalizedRecommendations } from './components/PersonalizedRecommendations';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { onAuthStateChange, signOut } from './services/auth';
+import { enhancedStreamingService } from './services/enhancedStreaming';
 
 const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
   <header className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-40">
@@ -510,15 +511,15 @@ function App() {
     let title;
 
     if (type === 'movie') {
-      sources = streamingService.getMovieStreamingSources(item.id, item.title);
+      sources = enhancedStreamingService.getMovieStreamingSources(item.id, item.title || 'Movie');
       title = item.title;
     } else {
       if (season && episode) {
-        sources = streamingService.getTVShowStreamingSources(item.id, season, episode, item.episodeTitle || item.name);
+        sources = enhancedStreamingService.getTVShowStreamingSources(item.id, season, episode, item.episodeTitle || item.name);
         title = item.episodeTitle || `${item.name} S${season}E${episode}`;
       } else {
         // Default to first episode of first season
-        sources = streamingService.getTVShowStreamingSources(item.id, 1, 1, item.name);
+        sources = enhancedStreamingService.getTVShowStreamingSources(item.id, 1, 1, item.name || 'TV Show');
         title = `${item.name} S1E1`;
       }
     }
