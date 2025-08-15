@@ -69,10 +69,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
   const currentSourceData = sources[currentSource];
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-      <div className="w-full h-full relative bg-black">
+    <div className="fixed inset-0 bg-black z-[9999] flex flex-col">
+      <div className="flex-1 relative bg-black overflow-hidden">
         {/* Video Player Header */}
-        <div className="absolute top-0 left-0 right-0 bg-black/90 backdrop-blur-sm z-10 p-4 border-b border-gray-800">
+        <div className="relative top-0 left-0 right-0 bg-black/95 backdrop-blur-sm z-[10000] p-4 border-b border-gray-800 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-white text-xl font-semibold">{title}</h2>
@@ -125,7 +125,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
 
         {/* Server Selector Modal */}
         {showServerSelector && (
-          <div className="absolute top-20 left-4 right-4 bg-slate-900 rounded-xl shadow-2xl z-20 max-h-96 overflow-y-auto">
+          <div className="absolute top-20 left-4 right-4 bg-slate-900 rounded-xl shadow-2xl z-[10001] max-h-96 overflow-y-auto">
             <div className="p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Choose Server</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -166,7 +166,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
 
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-30">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-[10002]">
             <div className="text-center text-white">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
               <p className="text-lg">Loading video from {currentSourceData?.server}...</p>
@@ -177,7 +177,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
 
         {/* Error Overlay */}
         {error && !loading && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-30">
+          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-[10002]">
             <div className="text-center text-white max-w-md mx-auto p-6">
               <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
               <h3 className="text-xl font-bold mb-2">Connection Failed</h3>
@@ -204,7 +204,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
         )}
 
         {/* Video Iframe */}
-        <div className="absolute top-16 left-0 right-0 bottom-0">
+        <div className="flex-1 relative">
           {currentSourceData && (
             <iframe
               key={`${currentSourceData.id}-${retryCount}`}
@@ -223,7 +223,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
         </div>
 
         {/* Tips */}
-        <div className="absolute bottom-4 left-4 right-4 z-10">
+        <div className="absolute bottom-4 left-4 right-4 z-[9999]">
           <div className="bg-black/70 backdrop-blur-sm rounded-lg p-3 text-center">
             <p className="text-sm text-gray-300">
               💡 <strong>Tip:</strong> If the video doesn't load, try switching to a different server using the dropdown above.
