@@ -1,3 +1,85 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global CSS fixes for screen dimensions */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Fix for video player dimensions */
+.video-player-container {
+  aspect-ratio: 16/9;
+  width: 100%;
+  height: auto;
+  max-height: 100vh;
+}
+
+/* Fix for media cards */
+.media-card-container {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .media-card-container {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .media-card-container {
+    max-width: calc(50% - 1rem);
+  }
+}
+
+@media (min-width: 1025px) {
+  .media-card-container {
+    max-width: calc(33.333% - 1rem);
+  }
+}
+
+/* Fix for iframe dimensions */
+iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  border: none;
+  display: block;
+}
+
+/* Ensure proper aspect ratios */
+.aspect-video {
+  aspect-ratio: 16/9;
+}
+
+.aspect-square {
+  aspect-ratio: 1/1;
+}
+
+/* Fix for flexbox issues */
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.flex-item {
+  flex: 1;
+  min-height: 0;
+}

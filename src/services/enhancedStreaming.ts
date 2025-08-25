@@ -22,22 +22,40 @@ export interface StreamingSource {
 class EnhancedStreamingService {
   private servers: StreamingServer[] = [
     {
-      id: 'vidsrc-primary',
-      name: 'VidSrc Primary',
-      quality: 'HD',
-      type: 'primary',
-      baseUrl: 'https://vidsrc.to/embed',
-      active: true,
-      priority: 1
-    },
-    {
       id: '2embed',
       name: '2Embed',
       quality: 'HD',
       type: 'primary',
       baseUrl: 'https://www.2embed.cc/embed',
       active: true,
+      priority: 1
+    },
+    {
+      id: 'embed-su',
+      name: 'Embed.su',
+      quality: 'HD',
+      type: 'primary',
+      baseUrl: 'https://embed.su/embed',
+      active: true,
       priority: 2
+    },
+    {
+      id: 'multiembed',
+      name: 'MultiEmbed',
+      quality: 'HD',
+      type: 'premium',
+      baseUrl: 'https://multiembed.mov',
+      active: true,
+      priority: 3
+    },
+    {
+      id: 'vidsrc-primary',
+      name: 'VidSrc Primary',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.to/embed',
+      active: true,
+      priority: 4
     },
     {
       id: 'vidsrc-backup',
@@ -46,16 +64,7 @@ class EnhancedStreamingService {
       type: 'backup',
       baseUrl: 'https://vidsrc.me/embed',
       active: true,
-      priority: 3
-    },
-    {
-      id: 'embed-su',
-      name: 'Embed.su',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://embed.su/embed',
-      active: true,
-      priority: 4
+      priority: 5
     },
     {
       id: 'vidsrc-xyz',
@@ -63,15 +72,6 @@ class EnhancedStreamingService {
       quality: 'HD',
       type: 'backup',
       baseUrl: 'https://vidsrc.xyz/embed',
-      active: true,
-      priority: 5
-    },
-    {
-      id: 'multiembed',
-      name: 'MultiEmbed',
-      quality: 'HD',
-      type: 'premium',
-      baseUrl: 'https://multiembed.mov',
       active: true,
       priority: 6
     },
@@ -97,7 +97,7 @@ class EnhancedStreamingService {
       id: 'watchug-inspired',
       name: 'WatchUG Inspired',
       quality: 'HD',
-      type: 'primary',
+      type: 'backup',
       baseUrl: 'https://vidsrc.to/embed',
       active: true,
       priority: 9
@@ -106,7 +106,7 @@ class EnhancedStreamingService {
       id: 'working-server-1',
       name: 'Working Server 1',
       quality: 'HD',
-      type: 'primary',
+      type: 'backup',
       baseUrl: 'https://vidsrc.to/embed',
       active: true,
       priority: 10
@@ -115,7 +115,7 @@ class EnhancedStreamingService {
       id: 'working-server-2',
       name: 'Working Server 2',
       quality: 'HD',
-      type: 'primary',
+      type: 'backup',
       baseUrl: 'https://www.2embed.cc/embed',
       active: true,
       priority: 11

@@ -105,14 +105,6 @@ class MultiSourceAPIService {
 
   private streamingServers: ServerOption[] = [
     {
-      id: 'vidsrc-primary',
-      name: 'VidSrc Primary',
-      quality: 'HD',
-      type: 'primary',
-      active: true,
-      baseUrl: 'https://vidsrc.to/embed'
-    },
-    {
       id: '2embed',
       name: '2Embed',
       quality: 'HD',
@@ -121,18 +113,10 @@ class MultiSourceAPIService {
       baseUrl: 'https://www.2embed.cc/embed'
     },
     {
-      id: 'vidsrc-backup',
-      name: 'VidSrc Backup',
-      quality: 'HD',
-      type: 'backup',
-      active: true,
-      baseUrl: 'https://vidsrc.me/embed'
-    },
-    {
       id: 'embed-su',
       name: 'Embed.su',
       quality: 'HD',
-      type: 'backup',
+      type: 'primary',
       active: true,
       baseUrl: 'https://embed.su/embed'
     },
@@ -143,6 +127,22 @@ class MultiSourceAPIService {
       type: 'premium',
       active: true,
       baseUrl: 'https://multiembed.mov'
+    },
+    {
+      id: 'vidsrc-primary',
+      name: 'VidSrc Primary',
+      quality: 'HD',
+      type: 'backup',
+      active: true,
+      baseUrl: 'https://vidsrc.to/embed'
+    },
+    {
+      id: 'vidsrc-backup',
+      name: 'VidSrc Backup',
+      quality: 'HD',
+      type: 'backup',
+      active: true,
+      baseUrl: 'https://vidsrc.me/embed'
     },
     {
       id: 'vidsrc-pro',
@@ -169,10 +169,10 @@ class MultiSourceAPIService {
           const urlObj = new URL(`${contentSource.baseUrl}${endpoint}`);
           if (contentSource.apiKey) {
             urlObj.searchParams.append('api_key', contentSource.apiKey);
-          }
-          
-          Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
+        }
+        
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
               urlObj.searchParams.append(key, value.toString());
             }
           });
@@ -214,8 +214,8 @@ class MultiSourceAPIService {
         
         // Validate response data
         if (data && (data.results || data.genres || data.id || data.Response)) {
-          console.log(`✅ Success with ${source.name}:`, data);
-          return data;
+        console.log(`✅ Success with ${source.name}:`, data);
+        return data;
         } else {
           throw new Error('Invalid response format');
         }
@@ -390,7 +390,7 @@ class MultiSourceAPIService {
   // Search movies from multiple sources
   async searchMovies(query: string, page: number = 1): Promise<any[]> {
     if (!query.trim()) return [];
-    
+
     try {
       const data = await this.fetchWithFallback('/search/movie', { query: query.trim(), page }, 'content');
       return (data.results || []).map((movie: any) => ({
@@ -409,7 +409,7 @@ class MultiSourceAPIService {
   // Search TV shows from multiple sources
   async searchTVShows(query: string, page: number = 1): Promise<any[]> {
     if (!query.trim()) return [];
-    
+
     try {
       const data = await this.fetchWithFallback('/search/tv', { query: query.trim(), page }, 'content');
       return (data.results || []).map((show: any) => ({

@@ -92,7 +92,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
 
   return (
     <div 
-      className={`group cursor-pointer transition-all duration-500 hover:scale-105 hover:z-10 relative transform hover:shadow-2xl ${
+      className={`group cursor-pointer transition-all duration-500 hover:scale-105 hover:z-10 relative transform hover:shadow-2xl w-full ${
         isClicked ? 'scale-95' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
@@ -108,15 +108,15 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
         }
       }}
     >
-      <div className={`relative overflow-hidden rounded-xl bg-slate-800 shadow-xl transition-all duration-300 ${
+      <div className={`relative overflow-hidden rounded-xl bg-slate-800 shadow-xl transition-all duration-300 w-full ${
         isHovered ? 'ring-2 ring-blue-500/50 shadow-blue-500/25' : ''
       }`}>
         {/* Main Image */}
-        <div className="relative">
+        <div className="relative w-full">
           <img 
             src={contentService.getImageUrl(item.poster_path, 'w500')} 
             alt={title}
-            className={`${sizeClasses[size]} object-cover transition-all duration-500 ${
+            className={`${sizeClasses[size]} w-full object-cover transition-all duration-500 ${
               isHovered ? 'scale-110 brightness-75' : 'scale-100'
             }`}
             onError={(e) => {
