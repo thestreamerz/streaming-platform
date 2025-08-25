@@ -1,6 +1,101 @@
 // Multi-source content service inspired by watchug.to
 import { tmdbService } from './api';
 
+// Working fallback content when APIs fail
+const FALLBACK_MOVIES = [
+  {
+    id: 1,
+    title: "The Shawshank Redemption",
+    overview: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    poster_path: "https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1280&h=720&fit=crop&auto=format",
+    release_date: "1994-09-23",
+    vote_average: 9.3,
+    genre_ids: [18],
+    type: 'movie'
+  },
+  {
+    id: 2,
+    title: "The Godfather",
+    overview: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+    poster_path: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=1280&h=720&fit=crop&auto=format",
+    release_date: "1972-03-24",
+    vote_average: 9.2,
+    genre_ids: [18, 80],
+    type: 'movie'
+  },
+  {
+    id: 3,
+    title: "The Dark Knight",
+    overview: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests.",
+    poster_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1280&h=720&fit=crop&auto=format",
+    release_date: "2008-07-18",
+    vote_average: 9.0,
+    genre_ids: [28, 80, 18],
+    type: 'movie'
+  },
+  {
+    id: 4,
+    title: "Pulp Fiction",
+    overview: "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+    poster_path: "https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1280&h=720&fit=crop&auto=format",
+    release_date: "1994-10-14",
+    vote_average: 8.9,
+    genre_ids: [80, 53],
+    type: 'movie'
+  },
+  {
+    id: 5,
+    title: "Fight Club",
+    overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy.",
+    poster_path: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=1280&h=720&fit=crop&auto=format",
+    release_date: "1999-10-15",
+    vote_average: 8.8,
+    genre_ids: [18],
+    type: 'movie'
+  }
+];
+
+const FALLBACK_TV_SHOWS = [
+  {
+    id: 1,
+    name: "Breaking Bad",
+    overview: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine.",
+    poster_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1280&h=720&fit=crop&auto=format",
+    first_air_date: "2008-01-20",
+    vote_average: 9.5,
+    genre_ids: [18, 80],
+    type: 'tv'
+  },
+  {
+    id: 2,
+    name: "Game of Thrones",
+    overview: "Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.",
+    poster_path: "https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1280&h=720&fit=crop&auto=format",
+    first_air_date: "2011-04-17",
+    vote_average: 9.3,
+    genre_ids: [18, 10765, 10759],
+    type: 'tv'
+  },
+  {
+    id: 3,
+    name: "Stranger Things",
+    overview: "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces.",
+    poster_path: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500&h=750&fit=crop&auto=format",
+    backdrop_path: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1280&h=720&fit=crop&auto=format",
+    first_air_date: "2016-07-15",
+    vote_average: 8.7,
+    genre_ids: [18, 10765, 9648],
+    type: 'tv'
+  }
+];
+
 interface ContentSource {
   name: string;
   baseUrl: string;
@@ -192,7 +287,7 @@ class ContentService {
     ];
   }
 
-  // Fetch with multiple source fallback
+  // Enhanced fetch with multiple source fallback and better error handling
   private async fetchWithFallback(endpoint: string, params: Record<string, any> = {}): Promise<any> {
     const cacheKey = `${endpoint}_${JSON.stringify(params)}`;
     
@@ -202,7 +297,7 @@ class ContentService {
       return this.cache.get(cacheKey);
     }
 
-    // Try each source in priority order
+    // Try each source in priority order with improved error handling
     for (const source of this.sources) {
       try {
         console.log(`🔄 Trying ${source.name} for:`, endpoint);
@@ -218,26 +313,38 @@ class ContentService {
           }
         });
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout to 15 seconds
+
         const response = await fetch(url.toString(), {
-          timeout: 10000, // 10 second timeout
+          signal: controller.signal,
           headers: {
             'Accept': 'application/json',
-            'User-Agent': 'THE STREAMERZ/1.0'
+            'User-Agent': 'THE STREAMERZ/2.0',
+            'Cache-Control': 'no-cache'
           }
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log(`✅ Success with ${source.name}:`, data);
         
-        // Cache successful response
-        this.cache.set(cacheKey, data);
-        return data;
+        // Validate response data
+        if (data && (data.results || data.genres || data.id)) {
+          console.log(`✅ Success with ${source.name}:`, data);
+          
+          // Cache successful response
+          this.cache.set(cacheKey, data);
+          return data;
+        } else {
+          throw new Error('Invalid response format');
+        }
 
-      } catch (error) {
+      } catch (error: any) {
         console.warn(`❌ ${source.name} failed:`, error.message);
         continue;
       }
@@ -247,7 +354,7 @@ class ContentService {
     return { results: [], genres: [] };
   }
 
-  // Get image URL with CDN fallback
+  // Get image URL with enhanced CDN fallback
   getImageUrl(path: string, size: string = 'w500'): string {
     if (!path) {
       return `https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=${size.replace('w', '')}&h=${Math.floor(parseInt(size.replace('w', '')) * 1.5)}&fit=crop&auto=format`;
@@ -263,113 +370,75 @@ class ContentService {
       return path;
     }
 
-    // Fallback to placeholder
+    // Enhanced fallback to placeholder
     return `https://images.unsplash.com/photo-1489599735734-79b4212bea40?w=${size.replace('w', '')}&h=${Math.floor(parseInt(size.replace('w', '')) * 1.5)}&fit=crop&auto=format`;
   }
 
-  // Get trending movies with guaranteed content
-  async getTrendingMovies(): Promise<ContentItem[]> {
+  // Get trending movies with enhanced fallback
+  async getTrendingMovies(): Promise<any[]> {
     try {
-      const data = await this.fetchWithFallback('/trending/movie/week');
-      const movies = (data.results || []).map((movie: any) => ({
-        ...movie,
-        type: 'movie' as const,
-        trending: true,
-        overview: movie.overview || 'An exciting movie experience awaits you.',
-        vote_average: movie.vote_average || 7.5,
-        poster_path: movie.poster_path || '',
-        backdrop_path: movie.backdrop_path || movie.poster_path || ''
-      }));
-
-      if (movies.length > 0) {
-        console.log('📽️ Loaded trending movies:', movies.length);
-        return movies;
+      const movies = await tmdbService.getTrendingMovies();
+      if (movies && movies.length > 0) {
+        return movies.map(movie => ({ ...movie, type: 'movie' }));
       }
     } catch (error) {
       console.error('Error fetching trending movies:', error);
     }
-
-    console.log('🎬 Using fallback trending movies');
-    return this.fallbackContent.filter(item => item.type === 'movie' && item.trending);
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback trending movies');
+    return FALLBACK_MOVIES.map(movie => ({ ...movie, trending: true }));
   }
 
-  // Get trending TV shows with guaranteed content
-  async getTrendingTVShows(): Promise<ContentItem[]> {
+  // Get trending TV shows with enhanced fallback
+  async getTrendingTVShows(): Promise<any[]> {
     try {
-      const data = await this.fetchWithFallback('/trending/tv/week');
-      const shows = (data.results || []).map((show: any) => ({
-        ...show,
-        type: 'tv' as const,
-        trending: true,
-        overview: show.overview || 'An amazing TV series you will love.',
-        vote_average: show.vote_average || 7.5,
-        poster_path: show.poster_path || '',
-        backdrop_path: show.backdrop_path || show.poster_path || ''
-      }));
-
-      if (shows.length > 0) {
-        console.log('📺 Loaded trending TV shows:', shows.length);
-        return shows;
+      const shows = await tmdbService.getTrendingTVShows();
+      if (shows && shows.length > 0) {
+        return shows.map(show => ({ ...show, type: 'tv' }));
       }
     } catch (error) {
       console.error('Error fetching trending TV shows:', error);
     }
-
-    console.log('📺 Using fallback trending TV shows');
-    return this.fallbackContent.filter(item => item.type === 'tv' && item.trending);
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback trending TV shows');
+    return FALLBACK_TV_SHOWS.map(show => ({ ...show, trending: true }));
   }
 
-  // Get popular movies with guaranteed content
-  async getPopularMovies(): Promise<ContentItem[]> {
+  // Get popular movies with enhanced fallback
+  async getPopularMovies(): Promise<any[]> {
     try {
-      const data = await this.fetchWithFallback('/movie/popular');
-      const movies = (data.results || []).map((movie: any) => ({
-        ...movie,
-        type: 'movie' as const,
-        overview: movie.overview || 'A popular movie that audiences love.',
-        vote_average: movie.vote_average || 7.0,
-        poster_path: movie.poster_path || '',
-        backdrop_path: movie.backdrop_path || movie.poster_path || ''
-      }));
-
-      if (movies.length > 0) {
-        console.log('🎭 Loaded popular movies:', movies.length);
-        return movies;
+      const movies = await tmdbService.getPopularMovies();
+      if (movies && movies.length > 0) {
+        return movies.map(movie => ({ ...movie, type: 'movie' }));
       }
     } catch (error) {
       console.error('Error fetching popular movies:', error);
     }
-
-    console.log('🎭 Using fallback popular movies');
-    return this.fallbackContent.filter(item => item.type === 'movie');
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback popular movies');
+    return FALLBACK_MOVIES;
   }
 
-  // Get popular TV shows with guaranteed content
-  async getPopularTVShows(): Promise<ContentItem[]> {
+  // Get popular TV shows with enhanced fallback
+  async getPopularTVShows(): Promise<any[]> {
     try {
-      const data = await this.fetchWithFallback('/tv/popular');
-      const shows = (data.results || []).map((show: any) => ({
-        ...show,
-        type: 'tv' as const,
-        overview: show.overview || 'A popular TV series with great ratings.',
-        vote_average: show.vote_average || 7.0,
-        poster_path: show.poster_path || '',
-        backdrop_path: show.backdrop_path || show.poster_path || ''
-      }));
-
-      if (shows.length > 0) {
-        console.log('📻 Loaded popular TV shows:', shows.length);
-        return shows;
+      const shows = await tmdbService.getPopularTVShows();
+      if (shows && shows.length > 0) {
+        return shows.map(show => ({ ...show, type: 'tv' }));
       }
     } catch (error) {
       console.error('Error fetching popular TV shows:', error);
     }
-
-    console.log('📻 Using fallback popular TV shows');
-    return this.fallbackContent.filter(item => item.type === 'tv');
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback popular TV shows');
+    return FALLBACK_TV_SHOWS;
   }
 
-  // Search with guaranteed results
+  // Enhanced search with guaranteed results
   async searchMovies(query: string): Promise<ContentItem[]> {
     if (!query.trim()) return [];
 
@@ -392,8 +461,8 @@ class ContentService {
       console.error('Error searching movies:', error);
     }
 
-    // Return filtered fallback content for search
-    console.log('🔍 Using fallback search results');
+    // Return enhanced filtered fallback content for search
+    console.log('🔍 Using enhanced fallback search results');
     return this.fallbackContent
       .filter(item => item.type === 'movie')
       .filter(item => 
@@ -402,7 +471,7 @@ class ContentService {
       );
   }
 
-  // Search TV shows with guaranteed results
+  // Enhanced search TV shows with guaranteed results
   async searchTVShows(query: string): Promise<ContentItem[]> {
     if (!query.trim()) return [];
 
@@ -425,8 +494,8 @@ class ContentService {
       console.error('Error searching TV shows:', error);
     }
 
-    // Return filtered fallback content for search
-    console.log('🔍 Using fallback search results');
+    // Return enhanced filtered fallback content for search
+    console.log('🔍 Using enhanced fallback search results');
     return this.fallbackContent
       .filter(item => item.type === 'tv')
       .filter(item => 
@@ -435,8 +504,8 @@ class ContentService {
       );
   }
 
-  // Get all content (mixed)
-  async getAllContent(): Promise<ContentItem[]> {
+  // Get all content (mixed) with enhanced fallback
+  async getAllContent(): Promise<any[]> {
     try {
       const [trendingMovies, trendingTV, popularMovies, popularTV] = await Promise.all([
         this.getTrendingMovies(),
@@ -452,15 +521,20 @@ class ContentService {
         ...popularTV.slice(0, 10)
       ];
 
-      console.log('🎯 Total content loaded:', allContent.length);
-      return allContent;
+      if (allContent.length > 0) {
+        console.log('Total content loaded:', allContent.length);
+        return allContent;
+      }
     } catch (error) {
       console.error('Error loading all content:', error);
-      return this.fallbackContent;
     }
+
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback all content');
+    return [...FALLBACK_MOVIES, ...FALLBACK_TV_SHOWS];
   }
 
-  // Clear cache
+  // Enhanced cache management
   clearCache(): void {
     this.cache.clear();
     console.log('🗑️ Cache cleared');
@@ -472,6 +546,34 @@ class ContentService {
       size: this.cache.size,
       keys: Array.from(this.cache.keys())
     };
+  }
+
+  // Test API connectivity
+  async testAPIConnectivity(): Promise<{ [key: string]: boolean }> {
+    const results: { [key: string]: boolean } = {};
+    
+    for (const source of this.sources) {
+      try {
+        const testUrl = `${source.baseUrl}/configuration`;
+        if (source.apiKey) {
+          const url = new URL(testUrl);
+          url.searchParams.append('api_key', source.apiKey);
+          
+          const response = await fetch(url.toString(), { 
+            method: 'HEAD',
+            signal: AbortSignal.timeout(5000)
+          });
+          
+          results[source.name] = response.ok;
+        } else {
+          results[source.name] = false;
+        }
+      } catch (error) {
+        results[source.name] = false;
+      }
+    }
+    
+    return results;
   }
 }
 

@@ -22,6 +22,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
 
   const title = type === 'movie' ? item.title : item.name;
   const releaseDate = type === 'movie' ? item.release_date : item.first_air_date;
@@ -39,13 +40,77 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
     return item.genre_ids.slice(0, 2).join(', ');
   };
 
+  // Enhanced main card click handler - opens video player
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isClicked) return; // Prevent double-clicking
+    
+    console.log('🎬 Card clicked:', title, 'Type:', type);
+    setIsClicked(true);
+    
+    // Call the onWatch function immediately
+    try {
+      onWatch(item, type);
+    } catch (error) {
+      console.error('Error calling onWatch:', error);
+    }
+    
+    // Reset click state after animation
+    setTimeout(() => setIsClicked(false), 300);
+  };
+
+  // Enhanced button click handlers with proper event handling
+  const handleWatchClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('▶️ Watch button clicked:', title);
+    onWatch(item, type);
+  };
+
+  const handleInfoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('ℹ️ Info button clicked:', title);
+    onSelect(item, type);
+  };
+
+  const handleWatchlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsInWatchlist(!isInWatchlist);
+    console.log('📝 Watchlist toggled for:', title);
+  };
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+    console.log('❤️ Like toggled for:', title);
+  };
+
   return (
     <div 
-      className="group cursor-pointer transition-all duration-500 hover:scale-105 hover:z-10 relative"
+      className={`group cursor-pointer transition-all duration-500 hover:scale-105 hover:z-10 relative transform hover:shadow-2xl ${
+        isClicked ? 'scale-95' : ''
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick} // Make entire card clickable
+      title={`Click to watch ${title}`} // Add tooltip
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardClick(e as any);
+        }
+      }}
     >
-      <div className="relative overflow-hidden rounded-xl bg-slate-800 shadow-xl">
+      <div className={`relative overflow-hidden rounded-xl bg-slate-800 shadow-xl transition-all duration-300 ${
+        isHovered ? 'ring-2 ring-blue-500/50 shadow-blue-500/25' : ''
+      }`}>
         {/* Main Image */}
         <div className="relative">
           <img 
@@ -57,6 +122,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
             onError={(e) => {
               e.currentTarget.src = '/placeholder-movie.jpg';
             }}
+            draggable={false}
           />
           
           {/* Gradient Overlay */}
@@ -81,6 +147,28 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
               🔥 Trending
             </div>
           )}
+
+          {/* Loading Indicator - Shows when clicked */}
+          {isClicked && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-xl z-30">
+              <div className="text-center text-white">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-sm">Opening...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Play Button Overlay - Shows on hover */}
+          <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 ${
+            isHovered ? 'opacity-100' : 'opacity-0'
+          }`}>
+            <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 border-2 border-white/30 mb-2">
+              <Play className="w-8 h-8 text-white fill-current" />
+            </div>
+            <div className="bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+              Click to Watch
+            </div>
+          </div>
         </div>
 
         {/* Hover Content */}
@@ -108,54 +196,46 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex space-x-2">
               <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onWatch(item, type);
-                }}
+                onClick={handleWatchClick}
                 className="p-2 bg-white text-black rounded-full hover:bg-gray-200 transition-all duration-300 transform hover:scale-110 shadow-lg"
                 title="Play Now"
+                type="button"
               >
                 <Play className="w-4 h-4 fill-current" />
               </button>
               
               <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInWatchlist(!isInWatchlist);
-                }}
+                onClick={handleWatchlistClick}
                 className={`p-2 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg ${
                   isInWatchlist 
                     ? 'bg-blue-600 text-white' 
                     : 'bg-slate-700 text-white hover:bg-slate-600'
                 }`}
                 title="Add to Watchlist"
+                type="button"
               >
                 <Plus className="w-4 h-4" />
               </button>
               
               <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsLiked(!isLiked);
-                }}
+                onClick={handleLikeClick}
                 className={`p-2 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg ${
                   isLiked 
                     ? 'bg-red-600 text-white' 
                     : 'bg-slate-700 text-white hover:bg-slate-600'
                 }`}
                 title="Like"
+                type="button"
               >
                 <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
               </button>
             </div>
             
             <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(item, type);
-              }}
+              onClick={handleInfoClick}
               className="p-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 transition-all duration-300 transform hover:scale-110 shadow-lg"
               title="More Info"
+              type="button"
             >
               <Info className="w-4 h-4" />
             </button>
@@ -181,6 +261,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
               src={contentService.getImageUrl(item.backdrop_path || item.poster_path, 'w500')} 
               alt={title}
               className="w-full h-32 object-cover rounded-t-xl"
+              draggable={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent rounded-t-xl" />
           </div>
@@ -197,17 +278,41 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
             
             <div className="flex items-center justify-between">
               <div className="flex space-x-2">
-                <button className="p-2 bg-white text-black rounded-full hover:bg-gray-200 transition-colors">
+                <button 
+                  onClick={handleWatchClick}
+                  className="p-2 bg-white text-black rounded-full hover:bg-gray-200 transition-colors"
+                  type="button"
+                >
                   <Play className="w-3 h-3 fill-current" />
                 </button>
-                <button className="p-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 transition-colors">
+                <button 
+                  onClick={handleWatchlistClick}
+                  className={`p-2 rounded-full transition-colors ${
+                    isInWatchlist 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-slate-700 text-white hover:bg-slate-600'
+                  }`}
+                  type="button"
+                >
                   <Plus className="w-3 h-3" />
                 </button>
-                <button className="p-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 transition-colors">
-                  <Heart className="w-3 h-3" />
+                <button 
+                  onClick={handleLikeClick}
+                  className={`p-2 rounded-full transition-colors ${
+                    isLiked 
+                      ? 'bg-red-600 text-white' 
+                      : 'bg-slate-700 text-white hover:bg-slate-600'
+                  }`}
+                  type="button"
+                >
+                  <Heart className={`w-3 h-3 ${isLiked ? 'fill-current' : ''}`} />
                 </button>
               </div>
-              <button className="p-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 transition-colors">
+              <button 
+                onClick={handleInfoClick}
+                className="p-2 bg-slate-700 text-white rounded-full hover:bg-slate-600 transition-colors"
+                type="button"
+              >
                 <Info className="w-3 h-3" />
               </button>
             </div>

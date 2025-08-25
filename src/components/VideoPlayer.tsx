@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Maximize, Volume2, Settings, RefreshCw, AlertCircle } from 'lucide-react';
+import { X, Play, Maximize, Volume2, Settings, RefreshCw, AlertCircle, Server } from 'lucide-react';
 import { StreamingSource } from '../services/streaming';
 import { ServerSelector } from './ServerSelector';
 
@@ -15,6 +15,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [autoRetry, setAutoRetry] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -25,27 +26,50 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
   const handleIframeLoad = () => {
     setLoading(false);
     setError(false);
+    console.log('✅ Iframe loaded successfully');
   };
 
   const handleIframeError = () => {
     setLoading(false);
     setError(true);
+    console.error('❌ Iframe failed to load');
+    
+    // Auto-retry with next source if enabled
+    if (autoRetry && retryCount < sources.length - 1) {
+      setTimeout(() => {
+        console.log('🔄 Auto-retrying with next source...');
+        handleRetry();
+      }, 2000);
+    }
   };
 
   const handleRetry = () => {
     if (retryCount < sources.length - 1) {
-      setCurrentSource((prev) => (prev + 1) % sources.length);
+      const nextSource = (currentSource + 1) % sources.length;
+      console.log(`🔄 Retrying with source ${nextSource + 1}/${sources.length}: ${sources[nextSource]?.server}`);
+      setCurrentSource(nextSource);
       setRetryCount(prev => prev + 1);
     } else {
       // Reset to first source after trying all
+      console.log('🔄 All sources tried, resetting to first source');
       setCurrentSource(0);
       setRetryCount(0);
     }
   };
 
   const handleServerChange = (newSourceIndex: number) => {
+    console.log(`🔄 Switching to server: ${sources[newSourceIndex]?.server}`);
     setCurrentSource(newSourceIndex);
     setShowServerSelector(false);
+    setRetryCount(0);
+  };
+
+  const handleManualRetry = () => {
+    console.log('🔄 Manual retry requested');
+    setRetryCount(0);
+    setCurrentSource(0);
+    setError(false);
+    setLoading(true);
   };
 
   if (!sources || sources.length === 0) {
@@ -80,42 +104,62 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
                 {currentSourceData?.server} - {currentSourceData?.quality} 
                 {error && <span className="text-red-400 ml-2">(Connection Error)</span>}
                 {loading && <span className="text-yellow-400 ml-2">(Loading...)</span>}
+                <span className="text-gray-500 ml-2">({currentSource + 1}/{sources.length})</span>
               </p>
             </div>
             <div className="flex items-center space-x-2">
+              {/* Server Selector */}
               {sources.length > 1 && (
-                <select
-                  value={currentSource}
-                  onChange={(e) => handleServerChange(Number(e.target.value))}
-                  className="bg-slate-800 text-white border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                >
-                  {sources.map((source, index) => (
-                    <option key={source.id} value={index}>
-                      {source.server} ({source.quality})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowServerSelector(!showServerSelector)}
+                    className="flex items-center space-x-2 bg-slate-800 text-white border border-slate-600 rounded px-3 py-2 text-sm hover:bg-slate-700 transition-colors"
+                  >
+                    <Server className="w-4 h-4" />
+                    <span>{currentSourceData?.server}</span>
+                  </button>
+                  
+                  {showServerSelector && (
+                    <div className="absolute top-full right-0 mt-2 bg-slate-800 border border-slate-600 rounded-lg shadow-xl z-[10001] min-w-48">
+                      <div className="p-2">
+                        <h3 className="text-white text-sm font-semibold mb-2 px-2">Select Server</h3>
+                        {sources.map((source, index) => (
+                          <button
+                            key={source.id}
+                            onClick={() => handleServerChange(index)}
+                            className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                              index === currentSource
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-300 hover:bg-slate-700 hover:text-white'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span>{source.server}</span>
+                              <span className="text-xs opacity-75">{source.quality}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
               
+              {/* Error Actions */}
               {error && (
                 <button
-                  onClick={handleRetry}
-                  className="flex items-center space-x-2 px-3 py-2 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors"
+                  onClick={handleManualRetry}
+                  className="flex items-center space-x-2 bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  <span>Try Next Server</span>
+                  <span>Retry</span>
                 </button>
               )}
               
-              <button
-                onClick={() => setShowServerSelector(!showServerSelector)}
-                className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-              >
-                Choose Server
-              </button>
+              {/* Close Button */}
               <button
                 onClick={onClose}
-                className="p-2 text-white hover:bg-red-600 rounded-lg transition-colors"
+                className="bg-slate-800 text-white p-2 rounded hover:bg-slate-700 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -123,111 +167,87 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
           </div>
         </div>
 
-        {/* Server Selector Modal */}
-        {showServerSelector && (
-          <div className="absolute top-20 left-4 right-4 bg-slate-900 rounded-xl shadow-2xl z-[10001] max-h-96 overflow-y-auto">
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Choose Server</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {sources.map((source, index) => (
-                  <button
-                    key={source.id}
-                    onClick={() => handleServerChange(index)}
-                    className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                      currentSource === index
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-600 hover:border-slate-500 bg-slate-700/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-white font-medium">{source.server}</h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold text-white ${
-                        source.quality === '4K' ? 'bg-purple-600' : 
-                        source.quality === 'HD' ? 'bg-green-600' : 'bg-blue-600'
-                      }`}>
-                        {source.quality}
-                      </span>
-                    </div>
-                    <p className="text-gray-400 text-sm">
-                      {source.type === 'movie' ? 'Movie' : 'TV Show'} Stream
-                    </p>
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setShowServerSelector(false)}
-                className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-lg transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Loading Overlay */}
-        {loading && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-[10002]">
-            <div className="text-center text-white">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-lg">Loading video from {currentSourceData?.server}...</p>
-              <p className="text-sm text-gray-400 mt-2">Please wait while we connect to the server</p>
-            </div>
-          </div>
-        )}
-
-        {/* Error Overlay */}
-        {error && !loading && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-[10002]">
-            <div className="text-center text-white max-w-md mx-auto p-6">
-              <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-              <h3 className="text-xl font-bold mb-2">Connection Failed</h3>
-              <p className="text-gray-400 mb-4">
-                Unable to load video from {currentSourceData?.server}. This might be due to server maintenance or regional restrictions.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={handleRetry}
-                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Try Next Server</span>
-                </button>
-                <button
-                  onClick={() => setShowServerSelector(true)}
-                  className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Choose Different Server
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Video Iframe */}
+        {/* Video Player Content */}
         <div className="flex-1 relative">
-          {currentSourceData && (
-            <iframe
-              key={`${currentSourceData.id}-${retryCount}`}
-              src={currentSourceData.url}
-              className="w-full h-full"
-              allowFullScreen
-              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-              frameBorder="0"
-              title={title}
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-pointer-lock allow-top-navigation"
-              onLoad={handleIframeLoad}
-              onError={handleIframeError}
-              style={{ display: loading ? 'none' : 'block' }}
-            />
+          {loading && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
+              <div className="text-center text-white">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p className="text-lg font-semibold mb-2">Loading Stream...</p>
+                <p className="text-gray-400 text-sm">
+                  {currentSourceData?.server} - {currentSourceData?.quality}
+                </p>
+              </div>
+            </div>
           )}
+
+          {error && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
+              <div className="text-center text-white">
+                <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+                <h2 className="text-xl font-bold mb-2">Stream Failed</h2>
+                <p className="text-gray-400 mb-4">
+                  Failed to load from {currentSourceData?.server}
+                </p>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleManualRetry}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                  {retryCount < sources.length - 1 && (
+                    <button
+                      onClick={handleRetry}
+                      className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                    >
+                      Next Server
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main Video Iframe */}
+          <iframe
+            key={`${currentSource}-${retryCount}`}
+            src={currentSourceData?.url}
+            className="w-full h-full border-0"
+            allowFullScreen
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+            title={`${title} - ${currentSourceData?.server}`}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+          />
         </div>
 
-        {/* Tips */}
-        <div className="absolute bottom-4 left-4 right-4 z-[9999]">
-          <div className="bg-black/70 backdrop-blur-sm rounded-lg p-3 text-center">
-            <p className="text-sm text-gray-300">
-              💡 <strong>Tip:</strong> If the video doesn't load, try switching to a different server using the dropdown above.
-            </p>
+        {/* Player Controls Footer */}
+        <div className="bg-black/95 backdrop-blur-sm border-t border-gray-800 p-4 flex-shrink-0">
+          <div className="flex items-center justify-between text-white">
+            <div className="flex items-center space-x-4">
+              <button className="p-2 hover:bg-slate-800 rounded transition-colors">
+                <Play className="w-5 h-5" />
+              </button>
+              <button className="p-2 hover:bg-slate-800 rounded transition-colors">
+                <Volume2 className="w-5 h-5" />
+              </button>
+              <button className="p-2 hover:bg-slate-800 rounded transition-colors">
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-400">
+                Server: {currentSourceData?.server}
+              </span>
+              <span className="text-sm text-gray-400">
+                Quality: {currentSourceData?.quality}
+              </span>
+              <button className="p-2 hover:bg-slate-800 rounded transition-colors">
+                <Maximize className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

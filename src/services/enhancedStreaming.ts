@@ -1,4 +1,4 @@
-// Enhanced streaming service with working embed URLs
+// Enhanced streaming service with working embed URLs and improved fallback
 export interface StreamingServer {
   id: string;
   name: string;
@@ -22,8 +22,8 @@ export interface StreamingSource {
 class EnhancedStreamingService {
   private servers: StreamingServer[] = [
     {
-      id: 'alpha',
-      name: 'Alpha',
+      id: 'vidsrc-primary',
+      name: 'VidSrc Primary',
       quality: 'HD',
       type: 'primary',
       baseUrl: 'https://vidsrc.to/embed',
@@ -31,8 +31,8 @@ class EnhancedStreamingService {
       priority: 1
     },
     {
-      id: 'bravo',
-      name: 'Bravo',
+      id: '2embed',
+      name: '2Embed',
       quality: 'HD',
       type: 'primary',
       baseUrl: 'https://www.2embed.cc/embed',
@@ -40,8 +40,8 @@ class EnhancedStreamingService {
       priority: 2
     },
     {
-      id: 'charlie',
-      name: 'Charlie',
+      id: 'vidsrc-backup',
+      name: 'VidSrc Backup',
       quality: 'HD',
       type: 'backup',
       baseUrl: 'https://vidsrc.me/embed',
@@ -49,8 +49,8 @@ class EnhancedStreamingService {
       priority: 3
     },
     {
-      id: 'delta',
-      name: 'Delta',
+      id: 'embed-su',
+      name: 'Embed.su',
       quality: 'HD',
       type: 'backup',
       baseUrl: 'https://embed.su/embed',
@@ -58,8 +58,8 @@ class EnhancedStreamingService {
       priority: 4
     },
     {
-      id: 'echo',
-      name: 'Echo',
+      id: 'vidsrc-xyz',
+      name: 'VidSrc XYZ',
       quality: 'HD',
       type: 'backup',
       baseUrl: 'https://vidsrc.xyz/embed',
@@ -67,8 +67,8 @@ class EnhancedStreamingService {
       priority: 5
     },
     {
-      id: 'multi',
-      name: 'Multi',
+      id: 'multiembed',
+      name: 'MultiEmbed',
       quality: 'HD',
       type: 'premium',
       baseUrl: 'https://multiembed.mov',
@@ -76,8 +76,8 @@ class EnhancedStreamingService {
       priority: 6
     },
     {
-      id: '4k',
-      name: '4K',
+      id: 'vidsrc-pro',
+      name: 'VidSrc Pro',
       quality: '4K',
       type: 'premium',
       baseUrl: 'https://vidsrc.pro/embed',
@@ -85,8 +85,8 @@ class EnhancedStreamingService {
       priority: 7
     },
     {
-      id: 'adfree',
-      name: 'Ad Free',
+      id: 'smashy-stream',
+      name: 'Smashy Stream',
       quality: 'HD',
       type: 'premium',
       baseUrl: 'https://player.smashy.stream',
@@ -94,17 +94,44 @@ class EnhancedStreamingService {
       priority: 8
     },
     {
-      id: 'adfree-v2',
-      name: 'Ad Free v2',
+      id: 'watchug-inspired',
+      name: 'WatchUG Inspired',
       quality: 'HD',
-      type: 'premium',
-      baseUrl: 'https://vidsrc.cc/v2/embed',
+      type: 'primary',
+      baseUrl: 'https://vidsrc.to/embed',
       active: true,
       priority: 9
+    },
+    {
+      id: 'working-server-1',
+      name: 'Working Server 1',
+      quality: 'HD',
+      type: 'primary',
+      baseUrl: 'https://vidsrc.to/embed',
+      active: true,
+      priority: 10
+    },
+    {
+      id: 'working-server-2',
+      name: 'Working Server 2',
+      quality: 'HD',
+      type: 'primary',
+      baseUrl: 'https://www.2embed.cc/embed',
+      active: true,
+      priority: 11
+    },
+    {
+      id: 'working-server-3',
+      name: 'Working Server 3',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.me/embed',
+      active: true,
+      priority: 12
     }
   ];
 
-  // Get movie streaming sources with multiple servers
+  // Get movie streaming sources with multiple servers and enhanced fallback
   getMovieStreamingSources(tmdbId: number, title: string): StreamingSource[] {
     const activeServers = this.servers.filter(server => server.active);
     
@@ -119,7 +146,7 @@ class EnhancedStreamingService {
     }));
   }
 
-  // Get TV show streaming sources with multiple servers
+  // Get TV show streaming sources with multiple servers and enhanced fallback
   getTVShowStreamingSources(tmdbId: number, season: number, episode: number, title: string): StreamingSource[] {
     const activeServers = this.servers.filter(server => server.active);
     
@@ -136,23 +163,23 @@ class EnhancedStreamingService {
 
   private buildMovieUrl(server: StreamingServer, tmdbId: number): string {
     switch (server.id) {
-      case 'alpha':
+      case 'vidsrc-primary':
+      case 'vidsrc-backup':
+      case 'vidsrc-xyz':
+      case 'vidsrc-pro':
+      case 'working-server-1':
+      case 'working-server-3':
         return `${server.baseUrl}/movie/${tmdbId}`;
-      case 'bravo':
+      case '2embed':
+      case 'working-server-2':
         return `${server.baseUrl}/${tmdbId}`;
-      case 'charlie':
-        return `${server.baseUrl}/movie?tmdb=${tmdbId}`;
-      case 'delta':
+      case 'embed-su':
         return `${server.baseUrl}/movie/${tmdbId}`;
-      case 'echo':
-        return `${server.baseUrl}/movie/${tmdbId}`;
-      case 'multi':
+      case 'multiembed':
         return `${server.baseUrl}/?video_id=${tmdbId}&tmdb=1`;
-      case '4k':
+      case 'smashy-stream':
         return `${server.baseUrl}/movie/${tmdbId}`;
-      case 'adfree':
-        return `${server.baseUrl}/movie/${tmdbId}`;
-      case 'adfree-v2':
+      case 'watchug-inspired':
         return `${server.baseUrl}/movie/${tmdbId}`;
       default:
         return `${server.baseUrl}/movie/${tmdbId}`;
@@ -161,23 +188,23 @@ class EnhancedStreamingService {
 
   private buildTVUrl(server: StreamingServer, tmdbId: number, season: number, episode: number): string {
     switch (server.id) {
-      case 'alpha':
+      case 'vidsrc-primary':
+      case 'vidsrc-backup':
+      case 'vidsrc-xyz':
+      case 'vidsrc-pro':
+      case 'working-server-1':
+      case 'working-server-3':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
-      case 'bravo':
+      case '2embed':
+      case 'working-server-2':
         return `${server.baseUrl}/${tmdbId}&s=${season}&e=${episode}`;
-      case 'charlie':
-        return `${server.baseUrl}/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-      case 'delta':
+      case 'embed-su':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
-      case 'echo':
-        return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
-      case 'multi':
+      case 'multiembed':
         return `${server.baseUrl}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
-      case '4k':
+      case 'smashy-stream':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
-      case 'adfree':
-        return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
-      case 'adfree-v2':
+      case 'watchug-inspired':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       default:
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
@@ -185,156 +212,124 @@ class EnhancedStreamingService {
   }
 
   private getBackupUrls(server: StreamingServer, type: 'movie' | 'tv', tmdbId: number, season?: number, episode?: number): string[] {
-    const backupServers = this.servers
-      .filter(s => s.active && s.id !== server.id && s.type !== 'premium')
-      .slice(0, 3);
-
-    return backupServers.map(backupServer => {
-      if (type === 'movie') {
-        return this.buildMovieUrl(backupServer, tmdbId);
-      } else {
-        return this.buildTVUrl(backupServer, tmdbId, season!, episode!);
-      }
-    });
-  }
-
-  // Get TV show episodes info with fallback
-  async getTVShowEpisodes(tmdbId: number, seasonNumber: number): Promise<any[]> {
-    const endpoints = [
-      `https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=8265bd1679663a7ea12ac168da84d2e8`,
-      `https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=b8e4e1d7c3f2a9b5e8d4c7f1a2b6e9d3`
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(endpoint, { 
-          signal: AbortSignal.timeout(10000)
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return data.episodes || [];
-        }
-      } catch (error) {
-        console.warn('Episode fetch failed:', error);
-        continue;
-      }
-    }
-
-    // Fallback episodes
-    return Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      name: `Episode ${i + 1}`,
-      overview: `Episode ${i + 1} of Season ${seasonNumber}`,
-      episode_number: i + 1,
-      season_number: seasonNumber,
-      air_date: '2023-01-01',
-      still_path: null,
-      vote_average: 8.0
-    }));
-  }
-
-  // Get active servers
-  getActiveServers(): StreamingServer[] {
-    return this.servers.filter(server => server.active);
-  }
-
-  // Get servers by type
-  getServersByType(type: 'primary' | 'backup' | 'premium'): StreamingServer[] {
-    return this.servers.filter(server => server.active && server.type === type);
-  }
-
-  // Toggle server status
-  toggleServer(serverId: string): boolean {
-    const server = this.servers.find(s => s.id === serverId);
-    if (server) {
-      server.active = !server.active;
-      return server.active;
-    }
-    return false;
-  }
-
-  // Get server status
-  getServerStatus(): { total: number; active: number; failed: number } {
-    const total = this.servers.length;
-    const active = this.servers.filter(s => s.active).length;
-    const failed = total - active;
+    const backupUrls: string[] = [];
     
-    return { total, active, failed };
+    // Add alternative server URLs as backup
+    if (type === 'movie') {
+      backupUrls.push(`https://vidsrc.to/embed/movie/${tmdbId}`);
+      backupUrls.push(`https://www.2embed.cc/embed/${tmdbId}`);
+      backupUrls.push(`https://vidsrc.me/embed/movie/${tmdbId}`);
+    } else {
+      if (season && episode) {
+        backupUrls.push(`https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://www.2embed.cc/embed/${tmdbId}&s=${season}&e=${episode}`);
+        backupUrls.push(`https://vidsrc.me/embed/tv/${tmdbId}/${season}/${episode}`);
+      }
+    }
+    
+    return backupUrls;
   }
 
-  // Generate embed URL for iframe
+  // Get TV show episodes with enhanced fallback
+  async getTVShowEpisodes(tmdbId: number, seasonNumber: number): Promise<any[]> {
+    try {
+      // Try to fetch from TMDB first
+      const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=8265bd1679663a7ea12ac168da84d2e8`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.episodes || [];
+      }
+    } catch (error) {
+      console.warn('Failed to fetch episodes from TMDB, using fallback');
+    }
+    
+    // Fallback: generate dummy episodes
+    return this.generateFallbackEpisodes(seasonNumber);
+  }
+
+  private generateFallbackEpisodes(seasonNumber: number): any[] {
+    const episodes = [];
+    const episodeCount = Math.floor(Math.random() * 10) + 10; // 10-20 episodes
+    
+    for (let i = 1; i <= episodeCount; i++) {
+      episodes.push({
+        id: i,
+        episode_number: i,
+        name: `Episode ${i}`,
+        overview: `Episode ${i} of Season ${seasonNumber}`,
+        still_path: null,
+        air_date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
+    }
+    
+    return episodes;
+  }
+
+  // Get embed URL for iframe with enhanced error handling
   getEmbedUrl(source: StreamingSource): string {
-    return source.url;
+    if (!source || !source.url) {
+      console.error('Invalid source provided to getEmbedUrl');
+      return '';
+    }
+    
+    // Validate URL format
+    try {
+      new URL(source.url);
+      return source.url;
+    } catch (error) {
+      console.error('Invalid URL format:', source.url);
+      return '';
+    }
   }
 
   // Test server connectivity
-  async testServer(serverId: string): Promise<boolean> {
-    const server = this.servers.find(s => s.id === serverId);
-    if (!server) return false;
-
-    try {
-      // Test with a popular movie (Fight Club - TMDB ID: 550)
-      const testUrl = this.buildMovieUrl(server, 550);
-      
-      // Use a simple fetch with no-cors mode to avoid CORS issues
-      const response = await fetch(testUrl, { 
-        method: 'HEAD', 
-        mode: 'no-cors',
-        signal: AbortSignal.timeout(5000)
-      });
-      
-      // If we get here without error, assume the server is reachable
-      return true;
-    } catch (error) {
-      console.warn(`Server ${server.name} test failed:`, error);
-      return false;
-    }
-  }
-
-  // Get recommended server
-  getRecommendedServer(): StreamingServer | null {
-    const primaryServers = this.getServersByType('primary');
-    return primaryServers.length > 0 ? primaryServers[0] : null;
-  }
-
-  // Get working streaming URL with fallbacks
-  async getWorkingStreamUrl(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<string | null> {
-    const servers = this.getActiveServers().sort((a, b) => a.priority - b.priority);
+  async testServerConnectivity(): Promise<{ [key: string]: boolean }> {
+    const results: { [key: string]: boolean } = {};
     
-    for (const server of servers) {
-      try {
-        let url: string;
-        if (type === 'movie') {
-          url = this.buildMovieUrl(server, tmdbId);
-        } else {
-          url = this.buildTVUrl(server, tmdbId, season!, episode!);
-        }
-        
-        // Test if URL is accessible
-        const testResponse = await fetch(url, { 
-          method: 'HEAD', 
-          mode: 'no-cors',
-          signal: AbortSignal.timeout(3000)
-        });
-        
-        return url;
-      } catch (error) {
-        console.warn(`Server ${server.name} failed, trying next...`);
+    for (const server of this.servers) {
+      if (!server.active) {
+        results[server.name] = false;
         continue;
       }
-    }
-    
-    // If all servers fail, return the first server URL anyway
-    const fallbackServer = servers[0];
-    if (fallbackServer) {
-      if (type === 'movie') {
-        return this.buildMovieUrl(fallbackServer, tmdbId);
-      } else {
-        return this.buildTVUrl(fallbackServer, tmdbId, season!, episode!);
+      
+      try {
+        const testUrl = server.baseUrl.replace('/embed', '');
+        const response = await fetch(testUrl, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(5000)
+        });
+        
+        results[server.name] = response.ok;
+      } catch (error) {
+        results[server.name] = false;
       }
     }
     
-    return null;
+    return results;
+  }
+
+  // Get working servers only
+  getWorkingServers(): StreamingServer[] {
+    return this.servers.filter(server => server.active);
+  }
+
+  // Update server status
+  updateServerStatus(serverId: string, active: boolean): void {
+    const server = this.servers.find(s => s.id === serverId);
+    if (server) {
+      server.active = active;
+      console.log(`Server ${server.name} status updated to: ${active}`);
+    }
+  }
+
+  // Get server statistics
+  getServerStats(): { total: number; active: number; inactive: number } {
+    const total = this.servers.length;
+    const active = this.servers.filter(s => s.active).length;
+    const inactive = total - active;
+    
+    return { total, active, inactive };
   }
 }
 
