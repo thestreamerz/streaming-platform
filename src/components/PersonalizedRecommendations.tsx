@@ -35,32 +35,36 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
       let data = [];
       
       switch (activeCategory) {
-        case 'trending':
+        case 'trending': {
           const [trendingMovies, trendingTV] = await Promise.all([
             contentService.getTrendingMovies(),
             contentService.getTrendingTVShows()
           ]);
           data = [...trendingMovies.slice(0, 6), ...trendingTV.slice(0, 6)];
           break;
-          
-        case 'top-rated':
+        }
+
+        case 'top-rated': {
           const popularMovies = await contentService.getPopularMovies();
           data = popularMovies.slice(0, 12);
           break;
-          
-        case 'because-you-liked':
+        }
+
+        case 'because-you-liked': {
           // Mock personalized recommendations based on user preferences
           const likedContent = await contentService.getPopularMovies();
           data = likedContent.slice(0, 12);
           break;
-          
-        default:
+        }
+
+        default: {
           // For You - mix of different content
           const [popularContent, trending] = await Promise.all([
             contentService.getPopularMovies(),
             contentService.getTrendingMovies()
           ]);
           data = [...popularContent.slice(0, 6), ...trending.slice(0, 6)];
+        }
       }
       
       setRecommendations(data);
