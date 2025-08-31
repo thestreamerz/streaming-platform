@@ -97,7 +97,7 @@ class TMDBService {
         });
 
         clearTimeout(timeoutId);
-
+        
         if (!response.ok) {
           console.error(`❌ TMDB API error with key ${apiKey.substring(0, 8)}: ${response.status} - ${response.statusText}`);
           continue; // Try next API key
@@ -108,7 +108,7 @@ class TMDBService {
         // Validate response data
         if (data && (data.results || data.genres || data.id)) {
           console.log(`✅ Success with API key ${i + 1}:`, data);
-          return data;
+        return data;
         } else {
           throw new Error('Invalid response format');
         }

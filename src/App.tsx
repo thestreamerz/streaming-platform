@@ -3,6 +3,7 @@ import { Menu, X, Star, Play, Plus, Heart, User, TrendingUp as Trending, Film, H
 import { AnimatedLogo } from './components/AnimatedLogo';
 import { multiSourceAPI } from './services/multiSourceAPI';
 import { streamingService, StreamingSource } from './services/streaming';
+import { tmdbService } from './services/api';
 import { VideoPlayer } from './components/VideoPlayer';
 import { EpisodeSelector } from './components/EpisodeSelector';
 import { AuthModal } from './components/AuthModal';
@@ -25,6 +26,7 @@ import { PersonalizedRecommendations } from './components/PersonalizedRecommenda
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { onAuthStateChange, signOut } from './services/auth';
 import { enhancedStreamingService } from './services/enhancedStreaming';
+import { TSZAI } from './components/TSZAI';
 
 const Header = ({ activeView, setActiveView, searchQuery, setSearchQuery, mobileMenuOpen, setMobileMenuOpen, onSearch, onAdvancedSearch, onSearchResultSelect, user, onAuthClick }) => (
   <header className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-40">
@@ -307,6 +309,7 @@ function App() {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfService, setShowTermsOfService] = useState(false);
   const [filters, setFilters] = useState<FilterOptions | null>(null);
+  const [showTSZAI, setShowTSZAI] = useState(false);
   
   // Content state
   const [trendingMovies, setTrendingMovies] = useState([]);
@@ -564,9 +567,9 @@ function App() {
             
             <StatsSection />
             
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <h2 className="text-3xl font-bold text-white mb-8">Trending Movies</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
+                         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Trending Movies</h2>
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6 mb-8 sm:mb-12">
                 {trendingMovies.slice(0, 12).map((movie) => (
                   <EnhancedMediaCard 
                     key={movie.id} 
@@ -581,8 +584,8 @@ function App() {
                 ))}
               </div>
 
-              <h2 className="text-3xl font-bold text-white mb-8">Trending TV Shows</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Trending TV Shows</h2>
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
                 {trendingTVShows.slice(0, 12).map((show) => (
                   <EnhancedMediaCard 
                     key={show.id} 
@@ -603,13 +606,13 @@ function App() {
         );
 
       case 'movies':
-        return (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">
-                {selectedGenre ? `${genreName} Movies` : 'Popular Movies'}
-              </h2>
-              <div className="flex items-center space-x-4">
+                 return (
+           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+               <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                 {selectedGenre ? `${genreName} Movies` : 'Popular Movies'}
+               </h2>
+               <div className="flex items-center space-x-2 sm:space-x-4">
                 <AdvancedFilters
                   onFiltersChange={setFilters}
                   type="movie"
@@ -621,10 +624,10 @@ function App() {
                 />
               </div>
             </div>
-            {loading ? (
-              <LoadingSpinner text="Loading movies..." />
-            ) : popularMovies.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                         {loading ? (
+               <LoadingSpinner text="Loading movies..." />
+             ) : popularMovies.length > 0 ? (
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
               {popularMovies.map((movie) => (
                 <EnhancedMediaCard 
                   key={movie.id} 
@@ -647,13 +650,13 @@ function App() {
         );
 
       case 'tv':
-        return (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">
-                {selectedGenre ? `${genreName} TV Shows` : 'Popular TV Shows'}
-              </h2>
-              <div className="flex items-center space-x-4">
+                 return (
+           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+               <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                 {selectedGenre ? `${genreName} TV Shows` : 'Popular TV Shows'}
+               </h2>
+               <div className="flex items-center space-x-2 sm:space-x-4">
                 <AdvancedFilters
                   onFiltersChange={setFilters}
                   type="tv"
@@ -665,10 +668,10 @@ function App() {
                 />
               </div>
             </div>
-            {loading ? (
-              <LoadingSpinner text="Loading TV shows..." />
-            ) : popularTVShows.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                         {loading ? (
+               <LoadingSpinner text="Loading TV shows..." />
+             ) : popularTVShows.length > 0 ? (
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
               {popularTVShows.map((show) => (
                 <EnhancedMediaCard 
                   key={show.id} 
@@ -691,10 +694,10 @@ function App() {
         );
 
       case 'trending':
-        return (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h2 className="text-3xl font-bold text-white mb-8">Trending Now</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                 return (
+           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Trending Now</h2>
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
               {[...trendingMovies, ...trendingTVShows].map((item) => (
                 <EnhancedMediaCard 
                   key={`${item.id}-${item.title ? 'movie' : 'tv'}`} 
@@ -712,18 +715,18 @@ function App() {
         );
 
       case 'search':
-        return (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white">
-                Search Results for "{searchQuery}"
-              </h2>
-              <p className="text-gray-400">
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
-              </p>
-            </div>
-            {searchResults.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                 return (
+           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+               <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                 Search Results for "{searchQuery}"
+               </h2>
+               <p className="text-gray-400 text-sm sm:text-base">
+                 {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+               </p>
+             </div>
+             {searchResults.length > 0 ? (
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
                 {searchResults.map((item) => (
                   <EnhancedMediaCard 
                     key={`${item.id}-${item.type}`} 
@@ -808,13 +811,14 @@ function App() {
         </div>
       )}
 
-      <main>
+      <main className="pb-16 md:pb-0">
         {renderContent()}
       </main>
       
       <Footer 
         onShowPrivacyPolicy={() => setShowPrivacyPolicy(true)}
         onShowTermsOfService={() => setShowTermsOfService(true)}
+        onNavigate={setActiveView}
       />
 
       {selectedItem && (
@@ -867,6 +871,85 @@ function App() {
       {showTermsOfService && (
         <TermsOfService onClose={() => setShowTermsOfService(false)} />
       )}
+
+      {/* TSZ AI Chatbot */}
+      <TSZAI
+        isOpen={showTSZAI}
+        onClose={() => setShowTSZAI(false)}
+        onWatch={handleWatch}
+        onSelect={(item, type) => {
+          setSelectedItem(item);
+          setSelectedType(type);
+        }}
+        movies={[...trendingMovies, ...popularMovies]}
+        tvShows={[...trendingTVShows, ...popularTVShows]}
+      />
+
+      {/* Mobile Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-800 z-40 mobile-nav">
+        <div className="flex items-center justify-around py-2">
+          <button
+            onClick={() => setActiveView('home')}
+            className={`mobile-nav-item ${activeView === 'home' ? 'active' : ''}`}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-xs mt-1">Home</span>
+          </button>
+          <button
+            onClick={() => setActiveView('movies')}
+            className={`mobile-nav-item ${activeView === 'movies' ? 'active' : ''}`}
+          >
+            <Film className="w-5 h-5" />
+            <span className="text-xs mt-1">Movies</span>
+          </button>
+          <button
+            onClick={() => setActiveView('tv')}
+            className={`mobile-nav-item ${activeView === 'tv' ? 'active' : ''}`}
+          >
+            <Tv className="w-5 h-5" />
+            <span className="text-xs mt-1">TV Shows</span>
+          </button>
+          <button
+            onClick={() => setActiveView('trending')}
+            className={`mobile-nav-item ${activeView === 'trending' ? 'active' : ''}`}
+          >
+            <Trending className="w-5 h-5" />
+            <span className="text-xs mt-1">Trending</span>
+          </button>
+          <button
+            onClick={() => setShowTSZAI(true)}
+            className="mobile-nav-item"
+          >
+            <div className="relative">
+              <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-3 h-3 bg-white rounded-full"></div>
+              </div>
+              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full border border-slate-900"></div>
+            </div>
+            <span className="text-xs mt-1">AI</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Floating AI Button - Desktop Only */}
+      <button
+        onClick={() => setShowTSZAI(true)}
+        className="hidden md:flex fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 z-40 items-center justify-center group"
+        title="Ask TSZ AI"
+      >
+        <div className="relative">
+          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+            <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+          </div>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+        </div>
+        
+        {/* Tooltip */}
+        <div className="absolute right-16 bottom-0 bg-slate-900 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          Ask TSZ AI
+          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+        </div>
+      </button>
     </div>
   );
 }

@@ -1,7 +1,29 @@
 import React from 'react';
 import { Film, Mail, Facebook, Twitter, Instagram, Youtube, Heart } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onShowPrivacyPolicy: () => void;
+  onShowTermsOfService: () => void;
+  onNavigate?: (view: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTermsOfService, onNavigate }) => {
+  const handleQuickLinkClick = (link: string) => {
+    if (onNavigate) {
+      const viewMap: { [key: string]: string } = {
+        'Home': 'home',
+        'Movies': 'movies',
+        'TV Shows': 'tv',
+        'Trending': 'trending'
+      };
+      
+      const view = viewMap[link];
+      if (view) {
+        onNavigate(view);
+      }
+    }
+  };
+
   return (
     <footer className="bg-slate-950 border-t border-slate-800 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -48,9 +70,12 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               {['Home', 'Movies', 'TV Shows', 'Trending', 'Top Rated', 'Coming Soon', 'Genres', 'My Watchlist'].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  <button 
+                    onClick={() => handleQuickLinkClick(link)}
+                    className="text-gray-400 hover:text-white transition-colors text-sm text-left w-full"
+                  >
                     {link}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -62,9 +87,12 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               {['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance', 'Thriller', 'Documentary'].map((category) => (
                 <li key={category}>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  <button 
+                    onClick={() => handleQuickLinkClick(category)}
+                    className="text-gray-400 hover:text-white transition-colors text-sm text-left w-full"
+                  >
                     {category}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -76,7 +104,9 @@ export const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-blue-400" />
-                <span className="text-gray-400 text-sm">support@thestreamerz.com</span>
+                <a href="mailto:support@thestreamerz.com" className="text-gray-400 text-sm hover:text-white transition-colors">
+                  support@thestreamerz.com
+                </a>
               </div>
             </div>
             
@@ -119,13 +149,13 @@ export const Footer: React.FC = () => {
             
             <div className="flex items-center space-x-6">
               <button 
-                onClick={() => setShowPrivacyPolicy(true)}
+                onClick={onShowPrivacyPolicy}
                 className="text-gray-400 hover:text-white text-sm transition-colors"
               >
                 Privacy Policy
               </button>
               <button 
-                onClick={() => setShowTermsOfService(true)}
+                onClick={onShowTermsOfService}
                 className="text-gray-400 hover:text-white text-sm transition-colors"
               >
                 Terms of Service
@@ -136,11 +166,7 @@ export const Footer: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex items-center justify-center mt-6 pt-6 border-t border-slate-800">
-            <p className="text-gray-500 text-xs flex items-center">
-              Made with <Heart className="w-3 h-3 text-red-500 mx-1" /> for movie lovers worldwide
-            </p>
-          </div>
+
         </div>
       </div>
     </footer>

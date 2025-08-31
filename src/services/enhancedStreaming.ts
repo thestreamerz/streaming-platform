@@ -128,6 +128,98 @@ class EnhancedStreamingService {
       baseUrl: 'https://vidsrc.me/embed',
       active: true,
       priority: 12
+    },
+    // Bollywood specific servers
+    {
+      id: 'bollywood-server-1',
+      name: 'Bollywood Server 1',
+      quality: 'HD',
+      type: 'primary',
+      baseUrl: 'https://vidsrc.to/embed',
+      active: true,
+      priority: 13
+    },
+    {
+      id: 'bollywood-server-2',
+      name: 'Bollywood Server 2',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://www.2embed.cc/embed',
+      active: true,
+      priority: 14
+    },
+    {
+      id: 'bollywood-server-3',
+      name: 'Bollywood Server 3',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.me/embed',
+      active: true,
+      priority: 15
+    },
+    {
+      id: 'bollywood-server-4',
+      name: 'Bollywood Server 4',
+      quality: 'HD',
+      type: 'premium',
+      baseUrl: 'https://embed.su/embed',
+      active: true,
+      priority: 16
+    },
+    {
+      id: 'bollywood-server-5',
+      name: 'Bollywood Server 5',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.xyz/embed',
+      active: true,
+      priority: 17
+    },
+    // Additional backup servers
+    {
+      id: 'backup-server-1',
+      name: 'Backup Server 1',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.to/embed',
+      active: true,
+      priority: 18
+    },
+    {
+      id: 'backup-server-2',
+      name: 'Backup Server 2',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://www.2embed.cc/embed',
+      active: true,
+      priority: 19
+    },
+    {
+      id: 'backup-server-3',
+      name: 'Backup Server 3',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.me/embed',
+      active: true,
+      priority: 20
+    },
+    {
+      id: 'backup-server-4',
+      name: 'Backup Server 4',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://embed.su/embed',
+      active: true,
+      priority: 21
+    },
+    {
+      id: 'backup-server-5',
+      name: 'Backup Server 5',
+      quality: 'HD',
+      type: 'backup',
+      baseUrl: 'https://vidsrc.xyz/embed',
+      active: true,
+      priority: 22
     }
   ];
 
@@ -213,17 +305,27 @@ class EnhancedStreamingService {
 
   private getBackupUrls(server: StreamingServer, type: 'movie' | 'tv', tmdbId: number, season?: number, episode?: number): string[] {
     const backupUrls: string[] = [];
-    
+
     // Add alternative server URLs as backup
     if (type === 'movie') {
       backupUrls.push(`https://vidsrc.to/embed/movie/${tmdbId}`);
       backupUrls.push(`https://www.2embed.cc/embed/${tmdbId}`);
       backupUrls.push(`https://vidsrc.me/embed/movie/${tmdbId}`);
+      backupUrls.push(`https://embed.su/embed/movie/${tmdbId}`);
+      backupUrls.push(`https://vidsrc.xyz/embed/movie/${tmdbId}`);
+      backupUrls.push(`https://vidsrc.pro/embed/movie/${tmdbId}`);
+      backupUrls.push(`https://player.smashy.stream/movie/${tmdbId}`);
+      backupUrls.push(`https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`);
     } else {
       if (season && episode) {
         backupUrls.push(`https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`);
         backupUrls.push(`https://www.2embed.cc/embed/${tmdbId}&s=${season}&e=${episode}`);
         backupUrls.push(`https://vidsrc.me/embed/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://vidsrc.xyz/embed/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://vidsrc.pro/embed/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://player.smashy.stream/tv/${tmdbId}/${season}/${episode}`);
+        backupUrls.push(`https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`);
       }
     }
     
@@ -236,11 +338,11 @@ class EnhancedStreamingService {
       // Try to fetch from TMDB first
       const response = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=8265bd1679663a7ea12ac168da84d2e8`);
       
-      if (response.ok) {
-        const data = await response.json();
-        return data.episodes || [];
-      }
-    } catch (error) {
+        if (response.ok) {
+          const data = await response.json();
+          return data.episodes || [];
+        }
+      } catch (error) {
       console.warn('Failed to fetch episodes from TMDB, using fallback');
     }
     
@@ -276,7 +378,7 @@ class EnhancedStreamingService {
     // Validate URL format
     try {
       new URL(source.url);
-      return source.url;
+    return source.url;
     } catch (error) {
       console.error('Invalid URL format:', source.url);
       return '';
@@ -295,13 +397,13 @@ class EnhancedStreamingService {
       
       try {
         const testUrl = server.baseUrl.replace('/embed', '');
-        const response = await fetch(testUrl, { 
-          method: 'HEAD',
-          signal: AbortSignal.timeout(5000)
-        });
-        
+      const response = await fetch(testUrl, { 
+        method: 'HEAD', 
+        signal: AbortSignal.timeout(5000)
+      });
+      
         results[server.name] = response.ok;
-      } catch (error) {
+    } catch (error) {
         results[server.name] = false;
       }
     }

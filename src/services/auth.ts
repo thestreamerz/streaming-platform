@@ -16,9 +16,9 @@ import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/fir
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCIwFCQX0uIa6xYBd9nrvQ8D4x2ck4iqCg",
-  authDomain: "the-streamerz.firebaseapp.com",
-  projectId: "the-streamerz",
-  storageBucket: "the-streamerz.firebasestorage.app",
+  authDomain: "thestreamerz.firebaseapp.com",
+  projectId: "thestreamerz",
+  storageBucket: "thestreamerz.appspot.com",
   messagingSenderId: "11710633368",
   appId: "1:11710633368:web:14d84057f3013b8991c7ed",
   measurementId: "G-NCMYGLQ8VP"
