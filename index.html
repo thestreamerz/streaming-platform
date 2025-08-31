@@ -6,21 +6,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>THE STREAMERZ - Ultimate Movie & TV Streaming Platform</title>
     <meta name="description" content="Discover, stream, and enjoy unlimited movies and TV shows with THE STREAMERZ - your ultimate entertainment destination." />
+    <style>
+      .ad-banner {
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 2px solid #4a5568;
+        position: relative;
+        z-index: 1000;
+      }
+      .ad-container {
+        width: 468px;
+        height: 60px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #4a5568;
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        padding: 10px;
+        transition: all 0.3s ease;
+      }
+      .ad-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+      .ad-loading {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+      .ad-fallback {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        color: white;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
+    <!-- Advertisement Banner Container -->
+    <div class="ad-banner">
+      <div id="ad-container" class="ad-container ad-loading">
+        🎬 Loading Advertisement... 🎬
+      </div>
+    </div>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Advertisement Integration -->
     <script type="text/javascript">
-      atOptions = {
+      // Ad configuration
+      var atOptions = {
         'key' : '14ab3593b03ac8fba774e5769f0f0502',
         'format' : 'iframe',
         'height' : 60,
         'width' : 468,
         'params' : {}
       };
+      
+      // Function to load and display the ad
+      function loadAdvertisement() {
+        try {
+          console.log('Starting advertisement load...');
+          
+          // Create the ad script element
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = '//www.highperformanceformat.com/14ab3593b03ac8fba774e5769f0f0502/invoke.js';
+          
+          // When the script loads, it should automatically create the ad
+          script.onload = function() {
+            console.log('Ad script loaded successfully');
+            
+            // Wait a bit for the ad to initialize
+            setTimeout(function() {
+              const adContainer = document.getElementById('ad-container');
+              if (adContainer) {
+                // Remove loading class
+                adContainer.classList.remove('ad-loading');
+                
+                // Clear the loading text
+                adContainer.innerHTML = '';
+                
+                // The ad script should automatically populate this area
+                // If it doesn't, we'll create a fallback
+                if (adContainer.children.length === 0) {
+                  // Fallback: create a simple ad placeholder
+                  adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">🎬 Advertisement Space 🎬</div>';
+                  adContainer.classList.add('ad-fallback');
+                }
+              }
+            }, 1500);
+          };
+          
+          script.onerror = function() {
+            console.error('Failed to load ad script');
+            const adContainer = document.getElementById('ad-container');
+            if (adContainer) {
+              adContainer.classList.remove('ad-loading');
+              adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: #ff6b6b; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">⚠️ Ad Loading Failed</div>';
+              adContainer.classList.add('ad-fallback');
+            }
+          };
+          
+          // Append the script to the document
+          document.head.appendChild(script);
+          
+        } catch (error) {
+          console.error('Error loading advertisement:', error);
+          const adContainer = document.getElementById('ad-container');
+          if (adContainer) {
+            adContainer.classList.remove('ad-loading');
+            adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: #ff6b6b; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">❌ Ad Error</div>';
+            adContainer.classList.add('ad-fallback');
+          }
+        }
+      }
+      
+      // Load the ad when the page is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadAdvertisement);
+      } else {
+        loadAdvertisement();
+      }
+      
+      // Also try to load on window load as backup
+      window.addEventListener('load', function() {
+        setTimeout(loadAdvertisement, 1000);
+      });
     </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/14ab3593b03ac8fba774e5769f0f0502/invoke.js"></script>
   </body>
 </html>
