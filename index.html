@@ -60,7 +60,7 @@
     <!-- Advertisement Banner Container -->
     <div class="ad-banner">
       <div id="ad-container" class="ad-container ad-loading">
-        🎬 Loading Advertisement... 🎬
+        ✨ Loading Advertisement... ✨
       </div>
     </div>
     
@@ -69,84 +69,227 @@
     
     <!-- Advertisement Integration -->
     <script type="text/javascript">
-      // Ad configuration
-      var atOptions = {
-        'key' : '14ab3593b03ac8fba774e5769f0f0502',
-        'format' : 'iframe',
-        'height' : 60,
-        'width' : 468,
-        'params' : {}
+      // Ad Analytics Tracking
+      let adTrackingData = {
+        sessionId: 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        impressionId: null
+      };
+
+      // Track ad impression (to console and localStorage for now)
+      function trackAdImpression(adId, adType) {
+        try {
+          const impressionData = {
+            id: 'imp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            adId: adId,
+            adType: adType,
+            sessionId: adTrackingData.sessionId,
+            timestamp: new Date().toISOString(),
+            pageUrl: window.location.href,
+            userAgent: navigator.userAgent,
+            referrer: document.referrer,
+            isVisible: !document.hidden
+          };
+          
+          // Store impression ID for click tracking
+          adTrackingData.impressionId = impressionData.id;
+          
+          // Store locally (the React app will sync this to Firebase)
+          const impressions = JSON.parse(localStorage.getItem('adImpressions') || '[]');
+          impressions.push(impressionData);
+          localStorage.setItem('adImpressions', JSON.stringify(impressions.slice(-100))); // Keep last 100
+          
+          // Dispatch custom event for React app to pick up
+          window.dispatchEvent(new CustomEvent('adTracking', {
+            detail: { type: 'impression', data: impressionData }
+          }));
+          
+          console.log('📊 Ad impression tracked:', adId);
+        } catch (error) {
+          console.log('Analytics tracking error:', error);
+        }
+      }
+
+      // Track ad click
+      function trackAdClick(adId, adType, clickedUrl) {
+        try {
+          const clickData = {
+            id: 'clk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            adId: adId,
+            adType: adType,
+            impressionId: adTrackingData.impressionId,
+            sessionId: adTrackingData.sessionId,
+            timestamp: new Date().toISOString(),
+            clickedUrl: clickedUrl,
+            pageUrl: window.location.href,
+            userAgent: navigator.userAgent,
+            referrer: document.referrer
+          };
+          
+          // Store locally (the React app will sync this to Firebase)
+          const clicks = JSON.parse(localStorage.getItem('adClicks') || '[]');
+          clicks.push(clickData);
+          localStorage.setItem('adClicks', JSON.stringify(clicks.slice(-100))); // Keep last 100
+          
+          // Dispatch custom event for React app to pick up
+          window.dispatchEvent(new CustomEvent('adTracking', {
+            detail: { type: 'click', data: clickData }
+          }));
+          
+          console.log('🖱️ Ad click tracked:', adId, '-> Earnings potential detected! 💰');
+        } catch (error) {
+          console.log('Click tracking error:', error);
+        }
+      }
+
+      // Function to create and display working ad
+      function createWorkingAd() {
+        const adContainer = document.getElementById('ad-container');
+        if (adContainer) {
+          // Remove loading class
+          adContainer.classList.remove('ad-loading');
+          
+          const adId = 'banner_main_deal';
+          const adUrl = 'https://earphonescharornament.com/vtjn8n3ht?key=64079a66311d5329c907c6d475e190ff';
+          
+          // Create working ad content
+          adContainer.innerHTML = `
+            <div id="tracked-ad" style="width: 100%; height: 100%; background: linear-gradient(45deg, #667eea, #764ba2); display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px; cursor: pointer; text-align: center; padding: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);" 
+                 onclick="handleAdClick('${adId}', 'banner', '${adUrl}')">
+              🎬 Click Here for Amazing Deals! 🎬
+              <br>
+              <small style="font-size: 12px; opacity: 0.8;">Advertisement</small>
+            </div>
+          `;
+          
+          // Track impression
+          trackAdImpression(adId, 'banner');
+          
+          // Add hover effect
+          adContainer.style.transition = 'all 0.3s ease';
+          adContainer.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 12px rgba(0,0,0,0.4)';
+          });
+          adContainer.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+          });
+        }
+      }
+
+      // Handle ad click with tracking
+      function handleAdClick(adId, adType, url) {
+        trackAdClick(adId, adType, url);
+        window.open(url, '_blank');
+      }
+      
+      // Initialize ad immediately
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createWorkingAd);
+      } else {
+        createWorkingAd();
+      }
+      
+      // Also try the external ad service as backup
+      try {
+        var atOptions = {
+          'key' : '14ab3593b03ac8fba774e5769f0f0502',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+        
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//www.highperformanceformat.com/14ab3593b03ac8fba774e5769f0f0502/invoke.js';
+        script.onload = function() {
+          // If external ad loads successfully, replace our ad
+          setTimeout(function() {
+            const adContainer = document.getElementById('ad-container');
+            if (adContainer && adContainer.children.length > 0) {
+              // External ad loaded successfully
+              console.log('External ad loaded successfully');
+            }
+          }, 2000);
+        };
+        script.onerror = function() {
+          console.log('External ad service not available, using fallback');
+        };
+        document.head.appendChild(script);
+      } catch (error) {
+        console.log('External ad service error, using fallback');
+      }
+    </script>
+    
+    <!-- Smart Link Integration - smart-link-2897801 -->
+    <script type="text/javascript">
+      // Smart Link Configuration
+      var smartLinkConfig = {
+        smartlink_1: 'https://earphonescharornament.com/vtjn8n3ht?key=64079a66311d5329c907c6d475e190ff',
+        smartlink_2: 'https://earphonescharornament.com/rkbun41h?key=142edad5ac731e6aefe1622d3f5b53e4'
       };
       
-      // Function to load and display the ad
-      function loadAdvertisement() {
+      // Function to trigger popunder with tracking
+      function triggerPopunder(url, adId) {
         try {
-          console.log('Starting advertisement load...');
+          // Track popunder impression first
+          trackAdImpression(adId || 'popunder_smartlink', 'popunder');
           
-          // Create the ad script element
-          var script = document.createElement('script');
-          script.type = 'text/javascript';
-          script.src = '//www.highperformanceformat.com/14ab3593b03ac8fba774e5769f0f0502/invoke.js';
+          // Create popunder window
+          var popunder = window.open(url, '_blank', 'width=1,height=1,scrollbars=no,resizable=no,toolbar=no,menubar=no,location=no,status=no');
           
-          // When the script loads, it should automatically create the ad
-          script.onload = function() {
-            console.log('Ad script loaded successfully');
+          // Focus back to main window
+          if (popunder) {
+            popunder.blur();
+            window.focus();
             
-            // Wait a bit for the ad to initialize
-            setTimeout(function() {
-              const adContainer = document.getElementById('ad-container');
-              if (adContainer) {
-                // Remove loading class
-                adContainer.classList.remove('ad-loading');
-                
-                // Clear the loading text
-                adContainer.innerHTML = '';
-                
-                // The ad script should automatically populate this area
-                // If it doesn't, we'll create a fallback
-                if (adContainer.children.length === 0) {
-                  // Fallback: create a simple ad placeholder
-                  adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">🎬 Advertisement Space 🎬</div>';
-                  adContainer.classList.add('ad-fallback');
-                }
-              }
-            }, 1500);
-          };
-          
-          script.onerror = function() {
-            console.error('Failed to load ad script');
-            const adContainer = document.getElementById('ad-container');
-            if (adContainer) {
-              adContainer.classList.remove('ad-loading');
-              adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: #ff6b6b; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">⚠️ Ad Loading Failed</div>';
-              adContainer.classList.add('ad-fallback');
-            }
-          };
-          
-          // Append the script to the document
-          document.head.appendChild(script);
-          
-        } catch (error) {
-          console.error('Error loading advertisement:', error);
-          const adContainer = document.getElementById('ad-container');
-          if (adContainer) {
-            adContainer.classList.remove('ad-loading');
-            adContainer.innerHTML = '<div style="width: 100%; height: 100%; background: #ff6b6b; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; border-radius: 4px; font-size: 16px;">❌ Ad Error</div>';
-            adContainer.classList.add('ad-fallback');
+            // Track as click since popunder opened successfully
+            trackAdClick(adId || 'popunder_smartlink', 'popunder', url);
           }
+        } catch (error) {
+          console.log('Popunder blocked or failed:', error);
         }
       }
       
-      // Load the ad when the page is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadAdvertisement);
-      } else {
-        loadAdvertisement();
+      // Function to randomly select and trigger smart link
+      function triggerSmartLink() {
+        var linkKeys = Object.keys(smartLinkConfig);
+        var randomKey = linkKeys[Math.floor(Math.random() * linkKeys.length)];
+        var randomLink = smartLinkConfig[randomKey];
+        var adId = 'smartlink_' + randomKey;
+        
+        triggerPopunder(randomLink, adId);
       }
       
-      // Also try to load on window load as backup
+      // Trigger smart link on page load (with delay)
       window.addEventListener('load', function() {
-        setTimeout(loadAdvertisement, 1000);
+        setTimeout(function() {
+          // Random chance to trigger (adjust probability as needed)
+          if (Math.random() < 0.3) { // 30% chance
+            triggerSmartLink();
+          }
+        }, 3000); // 3 second delay
+      });
+      
+      // Trigger smart link on user interaction
+      document.addEventListener('click', function(e) {
+        // Random chance on click (adjust probability as needed)
+        if (Math.random() < 0.1) { // 10% chance on click
+          triggerSmartLink();
+        }
+      });
+      
+      // Trigger smart link on scroll
+      var scrollTriggered = false;
+      window.addEventListener('scroll', function() {
+        if (!scrollTriggered && window.scrollY > 500) {
+          scrollTriggered = true;
+          // Random chance on scroll
+          if (Math.random() < 0.2) { // 20% chance on scroll
+            triggerSmartLink();
+          }
+        }
       });
     </script>
   </body>

@@ -8,6 +8,18 @@
     ],
     "rewrites": [
       {
+        "source": "/cms",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/createBundle",
+        "function": "createBundle"
+      },
+      {
+        "source": "/createAnalyticsBundle",
+        "function": "createAnalyticsBundle"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
@@ -36,5 +48,9 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18"
   }
 }

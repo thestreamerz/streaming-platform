@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { X, Play, Maximize, Volume2, Settings, RefreshCw, AlertCircle, Server } from 'lucide-react';
 import { StreamingSource } from '../services/streaming';
 import { ServerSelector } from './ServerSelector';
+import { userTrackingService } from '../services/userTracking';
 
 interface VideoPlayerProps {
   sources: StreamingSource[];
   title: string;
   onClose: () => void;
+  user?: any;
+  content?: any;
+  contentType?: 'movie' | 'tv';
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClose }) => {
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClose, user, content, contentType }) => {
   const [currentSource, setCurrentSource] = useState(0);
   const [showServerSelector, setShowServerSelector] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,6 +45,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ sources, title, onClos
     setLoading(false);
     setError(false);
     console.log('✅ Iframe loaded successfully');
+    
+    // Track user watching content
+    if (user?.uid && content && contentType) {
+      userTrackingService.trackWatch(user.uid, content, contentType, 0, false);
+    }
   };
 
   const handleIframeError = () => {

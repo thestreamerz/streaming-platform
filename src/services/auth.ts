@@ -1,8 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User,
@@ -10,24 +9,8 @@ import {
   signInWithEmailAndPassword,
   updateProfile
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCIwFCQX0uIa6xYBd9nrvQ8D4x2ck4iqCg",
-  authDomain: "thestreamerz.firebaseapp.com",
-  projectId: "thestreamerz",
-  storageBucket: "thestreamerz.appspot.com",
-  messagingSenderId: "11710633368",
-  appId: "1:11710633368:web:14d84057f3013b8991c7ed",
-  measurementId: "G-NCMYGLQ8VP"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../firebase/config';
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
@@ -136,3 +119,4 @@ export const signOut = async () => {
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
+

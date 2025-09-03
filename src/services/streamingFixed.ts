@@ -1,4 +1,4 @@
-// Enhanced streaming service with working embed URLs and improved fallback
+// Fixed streaming service with only verified working servers
 export interface StreamingServer {
   id: string;
   name: string;
@@ -19,7 +19,7 @@ export interface StreamingSource {
   backup?: string[];
 }
 
-class EnhancedStreamingService {
+class FixedStreamingService {
   private servers: StreamingServer[] = [
     {
       id: '2embed',
@@ -92,69 +92,6 @@ class EnhancedStreamingService {
       baseUrl: 'https://player.smashy.stream',
       active: true,
       priority: 8
-    },
-    {
-      id: 'vidsrc-ru',
-      name: 'VidSrc.ru',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.ru/embed',
-      active: true,
-      priority: 9
-    },
-    {
-      id: 'vidsrc-net',
-      name: 'VidSrc.net',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.net/embed',
-      active: true,
-      priority: 10
-    },
-    {
-      id: 'vidsrc-cc',
-      name: 'VidSrc.cc',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.cc/embed',
-      active: true,
-      priority: 11
-    },
-    {
-      id: 'vidsrc-io',
-      name: 'VidSrc.io',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.io/embed',
-      active: true,
-      priority: 12
-    },
-    {
-      id: 'vidsrc-tv',
-      name: 'VidSrc.tv',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.tv/embed',
-      active: true,
-      priority: 13
-    },
-    {
-      id: 'vidsrc-movie',
-      name: 'VidSrc.movie',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.movie/embed',
-      active: true,
-      priority: 14
-    },
-    {
-      id: 'vidsrc-stream',
-      name: 'VidSrc.stream',
-      quality: 'HD',
-      type: 'backup',
-      baseUrl: 'https://vidsrc.stream/embed',
-      active: true,
-      priority: 15
     }
   ];
 
@@ -196,13 +133,6 @@ class EnhancedStreamingService {
       case 'vidsrc-me':
       case 'vidsrc-xyz':
       case 'vidsrc-pro':
-      case 'vidsrc-ru':
-      case 'vidsrc-net':
-      case 'vidsrc-cc':
-      case 'vidsrc-io':
-      case 'vidsrc-tv':
-      case 'vidsrc-movie':
-      case 'vidsrc-stream':
         return `${server.baseUrl}/movie/${tmdbId}`;
       case 'embed-su':
         return `${server.baseUrl}/movie/${tmdbId}`;
@@ -223,13 +153,6 @@ class EnhancedStreamingService {
       case 'vidsrc-me':
       case 'vidsrc-xyz':
       case 'vidsrc-pro':
-      case 'vidsrc-ru':
-      case 'vidsrc-net':
-      case 'vidsrc-cc':
-      case 'vidsrc-io':
-      case 'vidsrc-tv':
-      case 'vidsrc-movie':
-      case 'vidsrc-stream':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
       case 'embed-su':
         return `${server.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
@@ -253,13 +176,6 @@ class EnhancedStreamingService {
       backupUrls.push(`https://embed.su/embed/movie/${tmdbId}`);
       backupUrls.push(`https://vidsrc.xyz/embed/movie/${tmdbId}`);
       backupUrls.push(`https://vidsrc.pro/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.ru/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.net/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.cc/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.io/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.tv/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.movie/embed/movie/${tmdbId}`);
-      backupUrls.push(`https://vidsrc.stream/embed/movie/${tmdbId}`);
       backupUrls.push(`https://player.smashy.stream/movie/${tmdbId}`);
       backupUrls.push(`https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`);
     } else {
@@ -270,13 +186,6 @@ class EnhancedStreamingService {
         backupUrls.push(`https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`);
         backupUrls.push(`https://vidsrc.xyz/embed/tv/${tmdbId}/${season}/${episode}`);
         backupUrls.push(`https://vidsrc.pro/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.ru/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.net/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.cc/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.io/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.tv/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.movie/embed/tv/${tmdbId}/${season}/${episode}`);
-        backupUrls.push(`https://vidsrc.stream/embed/tv/${tmdbId}/${season}/${episode}`);
         backupUrls.push(`https://player.smashy.stream/tv/${tmdbId}/${season}/${episode}`);
         backupUrls.push(`https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`);
       }
@@ -388,4 +297,4 @@ class EnhancedStreamingService {
   }
 }
 
-export const enhancedStreamingService = new EnhancedStreamingService();
+export const fixedStreamingService = new FixedStreamingService();

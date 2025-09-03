@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Settings, Heart, Clock, Star, LogOut, Edit } from 'lucide-react';
-import { db } from '../services/auth';
+import { db } from '../firebase/config';
 import { doc, updateDoc } from 'firebase/firestore';
+import { userTrackingService, UserStats, WatchHistory, WatchlistItem, UserRating } from '../services/userTracking';
 
 interface UserProfileProps {
   user: any;
@@ -16,6 +17,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
     displayName: user?.displayName || '',
     email: user?.email || ''
   });
+  
+  // Real user data state
+  const [userStats, setUserStats] = useState<UserStats>({
+    moviesWatched: 0,
+    tvShowsWatched: 0,
+    totalHoursWatched: 0,
+    lastUpdated: new Date()
+  });
+  const [watchHistory, setWatchHistory] = useState<WatchHistory[]>([]);
+  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
+  const [userRatings, setUserRatings] = useState<UserRating[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -24,6 +37,40 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
     { id: 'ratings', label: 'My Ratings', icon: Star },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  // Load user data when component mounts
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (user?.uid) {
+        try {
+          setLoading(true);
+          
+          // Load user statistics
+          const stats = await userTrackingService.getUserStats(user.uid);
+          setUserStats(stats);
+          
+          // Load watch history
+          const history = await userTrackingService.getWatchHistory(user.uid);
+          setWatchHistory(history);
+          
+          // Load watchlist
+          const watchlistData = await userTrackingService.getWatchlist(user.uid);
+          setWatchlist(watchlistData);
+          
+          // Load user ratings
+          const ratings = await userTrackingService.getUserRatings(user.uid);
+          setUserRatings(ratings);
+          
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadUserData();
+  }, [user?.uid]);
 
   const handleSaveProfile = async () => {
     try {
@@ -181,45 +228,172 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, onSignOut, onClo
 
                 <div className="bg-slate-800 rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-400">127</div>
-                      <div className="text-gray-400 text-sm">Movies Watched</div>
+                  {loading ? (
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-400">...</div>
+                        <div className="text-gray-400 text-sm">Movies Watched</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-400">...</div>
+                        <div className="text-gray-400 text-sm">TV Shows</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-400">...</div>
+                        <div className="text-gray-400 text-sm">Hours Watched</div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-400">43</div>
-                      <div className="text-gray-400 text-sm">TV Shows</div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-400">{userStats.moviesWatched}</div>
+                        <div className="text-gray-400 text-sm">Movies Watched</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-400">{userStats.tvShowsWatched}</div>
+                        <div className="text-gray-400 text-sm">TV Shows</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-400">{Math.round(userStats.totalHoursWatched)}</div>
+                        <div className="text-gray-400 text-sm">Hours Watched</div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">89</div>
-                      <div className="text-gray-400 text-sm">Hours Watched</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
 
             {activeTab === 'watchlist' && (
-              <div className="text-center py-12">
-                <Heart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Your Watchlist is Empty</h3>
-                <p className="text-gray-400">Start adding movies and TV shows to your watchlist!</p>
+              <div>
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400">Loading watchlist...</div>
+                  </div>
+                ) : watchlist.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Heart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">Your Watchlist is Empty</h3>
+                    <p className="text-gray-400">Start adding movies and TV shows to your watchlist!</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {watchlist.map((item) => (
+                      <div key={item.id} className="bg-slate-800 rounded-lg overflow-hidden">
+                        {item.posterPath ? (
+                          <img 
+                            src={`https://image.tmdb.org/t/p/w300${item.posterPath}`} 
+                            alt={item.title}
+                            className="w-full h-48 object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-48 bg-slate-700 flex items-center justify-center">
+                            <Heart className="w-12 h-12 text-gray-500" />
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <h4 className="text-white font-medium text-sm truncate">{item.title}</h4>
+                          <p className="text-gray-400 text-xs capitalize">{item.contentType}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === 'history' && (
-              <div className="text-center py-12">
-                <Clock className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">No Watch History</h3>
-                <p className="text-gray-400">Your recently watched content will appear here.</p>
+              <div>
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400">Loading watch history...</div>
+                  </div>
+                ) : watchHistory.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Clock className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No Watch History</h3>
+                    <p className="text-gray-400">Your recently watched content will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {watchHistory.map((item) => (
+                      <div key={item.id} className="bg-slate-800 rounded-lg p-4 flex items-center space-x-4">
+                        {item.posterPath ? (
+                          <img 
+                            src={`https://image.tmdb.org/t/p/w200${item.posterPath}`} 
+                            alt={item.title}
+                            className="w-16 h-24 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-24 bg-slate-700 rounded flex items-center justify-center">
+                            <Clock className="w-8 h-8 text-gray-500" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium">{item.title}</h4>
+                          <p className="text-gray-400 text-sm capitalize">{item.contentType}</p>
+                          <p className="text-gray-500 text-xs">
+                            Watched {item.watchedAt.toLocaleDateString()} at {item.watchedAt.toLocaleTimeString()}
+                          </p>
+                          {item.duration > 0 && (
+                            <p className="text-gray-500 text-xs">Duration: {item.duration} minutes</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === 'ratings' && (
-              <div className="text-center py-12">
-                <Star className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">No Ratings Yet</h3>
-                <p className="text-gray-400">Rate movies and TV shows to see them here.</p>
+              <div>
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400">Loading ratings...</div>
+                  </div>
+                ) : userRatings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Star className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No Ratings Yet</h3>
+                    <p className="text-gray-400">Rate movies and TV shows to see them here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {userRatings.map((rating) => (
+                      <div key={rating.id} className="bg-slate-800 rounded-lg p-4 flex items-center space-x-4">
+                        {rating.posterPath ? (
+                          <img 
+                            src={`https://image.tmdb.org/t/p/w200${rating.posterPath}`} 
+                            alt={rating.title}
+                            className="w-16 h-24 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-24 bg-slate-700 rounded flex items-center justify-center">
+                            <Star className="w-8 h-8 text-gray-500" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium">{rating.title}</h4>
+                          <p className="text-gray-400 text-sm capitalize">{rating.contentType}</p>
+                          <div className="flex items-center space-x-2 mt-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`w-4 h-4 ${i < rating.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} 
+                                />
+                              ))}
+                            </div>
+                            <span className="text-gray-500 text-sm">{rating.rating}/5</span>
+                          </div>
+                          <p className="text-gray-500 text-xs">
+                            Rated on {rating.ratedAt.toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
