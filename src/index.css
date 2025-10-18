@@ -3,6 +3,49 @@
 @tailwind utilities;
 
 /* Global CSS fixes for screen dimensions */
+/* Force remove any legacy banner ad containers if still present in deployed HTML */
+.ad-banner,
+#ad-container {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* HARD BLOCK: third-party banner script artifacts (except explicitly allowed slots) */
+script[src*="sunkendifferextreme.com"],
+iframe[src*="sunkendifferextreme.com"],
+script[src*="/invoke.js"],
+iframe[src*="/invoke.js"],
+script[src*="googlesyndication.com"],
+iframe[src*="googlesyndication.com"],
+script[src*="doubleclick.net"],
+iframe[src*="doubleclick.net"],
+ins.adsbygoogle,
+[id^="aswift_"],
+[id^="ad" i]:not(.ad-allowed),
+[id*="-ad" i]:not(.ad-allowed),
+[class^="ad-" i]:not(.ad-allowed),
+[class$="-ad" i]:not(.ad-allowed),
+div.ad:not(.ad-allowed), div[id="ad"]:not(.ad-allowed), div[id^="ad-"]:not(.ad-allowed), div[id$="-ad"]:not(.ad-allowed),
+div[class~="ad"]:not(.ad-allowed), div[class^="ad-"]:not(.ad-allowed), div[class$="-ad"]:not(.ad-allowed) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+}
+
+/* Allow rendering inside our sandboxed ad slot */
+.ad-allowed script[src*="sunkendifferextreme.com"],
+.ad-allowed iframe[src*="sunkendifferextreme.com"],
+.ad-allowed * {
+  display: initial !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 * {
   box-sizing: border-box;
 }
@@ -49,6 +92,26 @@ html, body {
     body {
       position: relative;
     }
+  }
+  
+  /* Ensure video player controls are touch-friendly */
+  .video-controls button {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Make download and rotate buttons more prominent on mobile */
+  .video-controls .p-2 {
+    padding: 0.75rem !important;
+  }
+  
+  /* Ensure dropdowns are mobile-friendly */
+  .video-controls .absolute {
+    min-width: 200px;
+    max-width: 90vw;
+    left: 0;
+    right: auto;
   }
 }
 
@@ -132,6 +195,169 @@ iframe {
     width: 100vw !important;
     height: 56.25vw !important; /* 16:9 aspect ratio */
     max-height: 100vh;
+  }
+}
+
+/* Mobile landscape video player support */
+@media (max-width: 768px) and (orientation: landscape) {
+  .video-player-landscape {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: black;
+  }
+  
+  .video-player-landscape iframe {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh;
+    aspect-ratio: 16/9;
+  }
+  
+  /* Hide header in landscape fullscreen */
+  .video-player-landscape .video-header {
+    display: none;
+  }
+  
+  /* Adjust controls for landscape */
+  .video-player-landscape .video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.5rem;
+  }
+  
+  /* Ensure download and rotate buttons are visible on mobile */
+  .video-player-landscape .video-controls button {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Make download dropdown more mobile-friendly */
+  .video-player-landscape .video-controls .absolute {
+    min-width: 200px;
+    max-width: 90vw;
+  }
+  
+  /* Ensure video controls are always visible */
+  .video-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+  }
+  
+  /* Make controls more prominent */
+  .video-controls button {
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  
+  .video-controls button:hover {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+/* Fullscreen video player enhancements */
+.video-player-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  background: black !important;
+}
+
+/* Video player iframe improvements */
+.video-player iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: black !important;
+}
+
+/* Ensure video controls are always visible and prominent */
+.video-controls {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10001 !important;
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Reserve space for right sidebar on large screens so controls don't hide under it */
+@media (min-width: 1024px) {
+  .video-controls {
+    padding-right: 20rem; /* matches w-80 sidebar */
+  }
+}
+
+/* Make download and rotate buttons more prominent */
+.video-controls button[title="Download"],
+.video-controls button[title="Enter Fullscreen for Better View"] {
+  background: rgba(59, 130, 246, 0.8) !important;
+  border: 2px solid rgba(59, 130, 246, 1) !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.video-controls button[title="Download"]:hover,
+.video-controls button[title="Enter Fullscreen for Better View"]:hover {
+  background: rgba(59, 130, 246, 1) !important;
+  transform: scale(1.05) !important;
+}
+
+.video-player-fullscreen iframe {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  aspect-ratio: 16/9 !important;
+}
+
+/* Download button styles */
+.download-options {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 10001;
+  min-width: 200px;
+}
+
+.download-options::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 1rem;
+  border: 5px solid transparent;
+  border-top-color: #1e293b;
+}
+
+/* Touch feedback for mobile */
+@media (max-width: 768px) {
+  .touch-feedback:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Improve button touch targets */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
   }
 }
 

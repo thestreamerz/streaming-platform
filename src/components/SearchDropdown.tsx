@@ -34,12 +34,24 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        // Only close if not clicking on the input itself
+        if (event.target !== inputRef.current) {
+          setIsOpen(false);
+        }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // Use capture so we receive the event even if a child calls stopPropagation
+    document.addEventListener('mousedown', handleClickOutside, true);
+    const onScroll = () => setIsOpen(false);
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsOpen(false); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      window.removeEventListener('scroll', onScroll as any);
+      window.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   useEffect(() => {
@@ -53,6 +65,13 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     }, 300);
 
     return () => clearTimeout(searchTimeout);
+  }, [searchQuery]);
+
+  // Keep input focused when typing
+  useEffect(() => {
+    if (inputRef.current && searchQuery.length > 0) {
+      inputRef.current.focus();
+    }
   }, [searchQuery]);
 
   const performSearch = async () => {
@@ -85,6 +104,10 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     onResultSelect(result, result.type);
     setIsOpen(false);
     setSearchQuery('');
+    // Keep focus on input for better UX
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -117,9 +140,19 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => {
-              if (results.length > 0) setIsOpen(true);
+              if (results.length > 0) {
+                setIsOpen(true);
+              }
             }}
-            className="pl-10 pr-10 py-2 w-64 bg-slate-800 border border-slate-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            onBlur={(e) => {
+              // Only close if clicking outside the dropdown
+              if (!dropdownRef.current?.contains(e.relatedTarget as Node)) {
+                setTimeout(() => setIsOpen(false), 150);
+              }
+            }}
+            className="pl-10 pr-10 py-2 w-64 bg-slate-800 border border-slate-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-slate-700"
+            autoComplete="off"
+            spellCheck="false"
           />
           {searchQuery && (
             <button
@@ -145,7 +178,15 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
       {/* Dropdown Results */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-30 max-h-96 overflow-y-auto w-[360px] sm:w-[420px]">
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            aria-label="Close search"
+          >
+            <X className="w-4 h-4" />
+          </button>
           {loading ? (
             <div className="p-4 text-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>

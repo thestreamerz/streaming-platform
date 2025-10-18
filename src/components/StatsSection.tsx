@@ -55,7 +55,7 @@ export const StatsSection: React.FC = () => {
             The Numbers Speak for Themselves
           </h2>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Join millions of users who trust THE STREAMERZ for their entertainment needs
+            Join millions of users who trust STREAMERZ for their entertainment needs
           </p>
         </div>
         

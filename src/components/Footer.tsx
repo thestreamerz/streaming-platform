@@ -25,7 +25,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTerms
   };
 
   return (
-    <footer className="bg-slate-950 border-t border-slate-800 mt-16">
+    <footer className="bg-slate-950 border-t border-slate-800 mt-16 relative z-[10]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTerms
             <div className="flex items-center space-x-2">
               <img 
                 src="/The Streamerz Logo.png" 
-                alt="THE STREAMERZ" 
+                alt="STREAMERZ" 
                 className="w-8 h-8 object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTerms
               />
               <Film className="w-8 h-8 text-blue-500" style={{ display: 'none' }} />
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                THE STREAMERZ
+                STREAMERZ
               </span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -104,8 +104,8 @@ export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTerms
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-blue-400" />
-                <a href="mailto:support@thestreamerz.com" className="text-gray-400 text-sm hover:text-white transition-colors">
-                  support@thestreamerz.com
+                <a href="mailto:support@streamerz.online" className="text-gray-400 text-sm hover:text-white transition-colors">
+                  support@streamerz.online
                 </a>
               </div>
             </div>
@@ -132,7 +132,7 @@ export const Footer: React.FC<FooterProps> = ({ onShowPrivacyPolicy, onShowTerms
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
               <p className="text-gray-400 text-sm">
-                © 2024 THE STREAMERZ. All rights reserved.
+                © 2024 STREAMERZ. All rights reserved.
               </p>
               <div className="flex items-center space-x-1 text-gray-400 text-sm">
                 <span>This product uses the TMDB API but is not endorsed or certified by</span>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Play, Plus, TrendingUp, Award, Calendar, Clock } from 'lucide-react';
 import { tmdbService, Movie, TVShow } from '../services/api';
+import { contentService } from '../services/contentService';
 
 interface FeaturedSectionProps {
   onItemSelect: (item: any, type: 'movie' | 'tv') => void;
@@ -19,8 +20,8 @@ export const FeaturedSection: React.FC<FeaturedSectionProps> = ({ onItemSelect, 
   const loadFeaturedContent = async () => {
     try {
       const [topRated, upcoming] = await Promise.all([
-        tmdbService.getTopRatedMovies(),
-        tmdbService.getUpcomingMovies()
+        contentService.getTopRatedMovies(),
+        contentService.getUpcomingMovies()
       ]);
       
       setTopRatedMovies(topRated.slice(0, 8));

@@ -320,7 +320,7 @@ class ContentService {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
-            'User-Agent': 'THE STREAMERZ/2.0',
+            'User-Agent': 'STREAMERZ/2.0',
             'Cache-Control': 'no-cache'
           }
         });
@@ -574,6 +574,54 @@ class ContentService {
     }
     
     return results;
+  }
+
+  // Get top rated movies
+  async getTopRatedMovies(): Promise<any[]> {
+    try {
+      const movies = await tmdbService.getTopRatedMovies();
+      if (movies && movies.length > 0) {
+        return movies.map(movie => ({ ...movie, type: 'movie' }));
+      }
+    } catch (error) {
+      console.error('Error fetching top rated movies:', error);
+    }
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback top rated movies');
+    return FALLBACK_MOVIES.filter(movie => movie.vote_average >= 8.0).slice(0, 20);
+  }
+
+  // Get top rated TV shows
+  async getTopRatedTVShows(): Promise<any[]> {
+    try {
+      const shows = await tmdbService.getTopRatedTVShows();
+      if (shows && shows.length > 0) {
+        return shows.map(show => ({ ...show, type: 'tv' }));
+      }
+    } catch (error) {
+      console.error('Error fetching top rated TV shows:', error);
+    }
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback top rated TV shows');
+    return FALLBACK_TV_SHOWS.filter(show => show.vote_average >= 8.0).slice(0, 20);
+  }
+
+  // Get upcoming movies
+  async getUpcomingMovies(): Promise<any[]> {
+    try {
+      const movies = await tmdbService.getUpcomingMovies();
+      if (movies && movies.length > 0) {
+        return movies.map(movie => ({ ...movie, type: 'movie' }));
+      }
+    } catch (error) {
+      console.error('Error fetching upcoming movies:', error);
+    }
+    
+    // Return enhanced fallback content
+    console.log('Using enhanced fallback upcoming movies');
+    return FALLBACK_MOVIES.slice(0, 20);
   }
 }
 

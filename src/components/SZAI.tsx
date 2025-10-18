@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, X, Sparkles, MessageCircle, Search, Play, Info, Star, Clock, TrendingUp } from 'lucide-react';
+import { tmdbService } from '../services/api';
 
 interface Message {
   id: string;
@@ -10,7 +11,7 @@ interface Message {
   content?: any;
 }
 
-interface TSZAIProps {
+interface SZAIProps {
   isOpen: boolean;
   onClose: () => void;
   onWatch?: (item: any, type: string) => void;
@@ -19,7 +20,7 @@ interface TSZAIProps {
   tvShows?: any[];
 }
 
-export const TSZAI: React.FC<TSZAIProps> = ({ 
+export const SZAI: React.FC<SZAIProps> = ({ 
   isOpen, 
   onClose, 
   onWatch, 
@@ -30,7 +31,7 @@ export const TSZAI: React.FC<TSZAIProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm TSZ AI, your personal streaming assistant. I can help you find movies, TV shows, answer questions about the platform, and provide recommendations. What would you like to know?",
+      text: "Hello! I'm SZ AI, your personal streaming assistant. I can help you find movies, TV shows, answer questions about the platform, and provide recommendations. What would you like to know?",
       sender: 'ai',
       timestamp: new Date(),
       type: 'text'
@@ -86,6 +87,23 @@ export const TSZAI: React.FC<TSZAIProps> = ({
       categories: ["Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Romance", "Thriller", "Documentary"],
       quality: ["HD", "4K", "1080p", "720p"],
       languages: ["English", "Hindi", "Spanish", "French", "German", "Korean", "Japanese", "Chinese"]
+    }
+  };
+
+  // Helper: run a combined TMDB search
+  const searchTitles = async (query: string) => {
+    try {
+      const [moviesRes, showsRes] = await Promise.all([
+        tmdbService.searchMovies(query),
+        tmdbService.searchTVShows(query)
+      ]);
+      const results = [
+        ...moviesRes.map((r: any) => ({ ...r, __type: 'movie' })),
+        ...showsRes.map((r: any) => ({ ...r, __type: 'tv' }))
+      ];
+      return results;
+    } catch (e) {
+      return [];
     }
   };
 
@@ -165,8 +183,27 @@ export const TSZAI: React.FC<TSZAIProps> = ({
       return "To create an account:\n• Click the user icon in the header\n• Choose 'Sign up' to create a new account\n• Use Google sign-in for quick access\n• Or create an account with email/password\n\nThis gives you access to personalized features!";
     }
     
-    // Default response
-    return "I'm here to help! You can ask me about:\n• Finding specific movies or shows\n• Platform features and navigation\n• Content recommendations\n• Troubleshooting issues\n• Bollywood and international content\n\nWhat would you like to know?";
+    // Fallback: try searching TMDB with the user's text
+    if (userMessage.trim().length >= 2) {
+      const results = await searchTitles(userMessage.trim());
+      if (results.length > 0) {
+        const top = results
+          .sort((a: any, b: any) => (b.vote_average || 0) - (a.vote_average || 0))
+          .slice(0, 5);
+        let response = 'Here is what I found:\n\n';
+        top.forEach((item: any, index: number) => {
+          const title = item.title || item.name;
+          const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+          const rating = item.vote_average ? `★ ${item.vote_average.toFixed(1)}` : 'No rating';
+          response += `${index + 1}. ${title} (${item.__type.toUpperCase()}${year ? ` • ${year}` : ''}) — ${rating}\n`;
+        });
+        response += '\nSay "watch <title>" or "details <title>" to open it.';
+        return response;
+      }
+    }
+
+    // Default help
+    return "I'm here to help! You can ask me about:\n• Finding specific movies or shows\n• Platform features and navigation\n• Content recommendations\n• Troubleshooting issues\n• Bollywood and international content\n\nTry typing a title to search, e.g., \"Inception\".";
   };
 
   const handleSendMessage = async () => {
@@ -219,8 +256,8 @@ export const TSZAI: React.FC<TSZAIProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 mobile-ai-chat">
-      <div className="bg-slate-900 rounded-2xl w-full max-w-2xl h-[600px] sm:h-[600px] flex flex-col shadow-2xl border border-slate-700 mobile-ai-content">
+    <div className="fixed bottom-4 right-4 z-30 p-0 pointer-events-auto">
+      <div className="bg-slate-900 rounded-2xl w-[360px] sm:w-[420px] max-w-[95vw] h-[480px] sm:h-[520px] flex flex-col shadow-2xl border border-slate-700">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
           <div className="flex items-center space-x-2 sm:space-x-3">
@@ -231,7 +268,7 @@ export const TSZAI: React.FC<TSZAIProps> = ({
               <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-slate-900"></div>
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white">TSZ AI</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-white">SZ AI</h2>
               <p className="text-xs sm:text-sm text-gray-400">Your streaming assistant</p>
             </div>
           </div>
@@ -244,7 +281,7 @@ export const TSZAI: React.FC<TSZAIProps> = ({
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 mobile-ai-messages">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -294,7 +331,7 @@ export const TSZAI: React.FC<TSZAIProps> = ({
             {quickActions.map((action, index) => (
               <button
                 key={index}
-                onClick={() => setInputText(action.text)}
+                onClick={() => { setInputText(action.text); setTimeout(() => handleSendMessage(), 0); }}
                 className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full text-xs sm:text-sm transition-colors touch-feedback"
               >
                 <action.icon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -305,7 +342,7 @@ export const TSZAI: React.FC<TSZAIProps> = ({
         </div>
 
         {/* Input */}
-        <div className="p-4 sm:p-6 border-t border-slate-700 mobile-ai-input">
+        <div className="p-4 sm:p-6 border-t border-slate-700">
           <div className="flex space-x-2 sm:space-x-3">
             <input
               ref={inputRef}

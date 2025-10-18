@@ -39,7 +39,7 @@ export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
                 </div>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    THE STREAMERZ collects information to provide better services to our users. We collect information in the following ways:
+                    STREAMERZ collects information to provide better services to our users. We collect information in the following ways:
                   </p>
                   <ul className="list-disc list-inside space-y-2 ml-4">
                     <li><strong>Account Information:</strong> When you create an account, we collect your email address, display name, and authentication data.</li>
@@ -139,7 +139,7 @@ export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
                     <li>Export your data in a portable format</li>
                   </ul>
                   <p>
-                    To exercise these rights, please contact us at support@thestreamerz.com.
+                    To exercise these rights, please contact us at support@streamerz.online.
                   </p>
                 </div>
               </section>
@@ -148,8 +148,8 @@ export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ onClose }) => {
                 <h2 className="text-xl font-semibold text-white mb-4">Contact Information</h2>
                 <div className="text-gray-300 space-y-2">
                   <p>If you have any questions about this Privacy Policy, please contact us:</p>
-                  <p><strong>Email:</strong> support@thestreamerz.com</p>
-                  <p><strong>Website:</strong> THE STREAMERZ</p>
+                  <p><strong>Email:</strong> support@streamerz.online</p>
+                  <p><strong>Website:</strong> STREAMERZ</p>
                 </div>
               </section>
 

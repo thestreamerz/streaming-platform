@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Service Unavailable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        
+        .info {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .label {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .value {
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            color: #fca5a5;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">⚠️</div>
+        <h1>Streaming Service Unavailable</h1>
+        <p class="subtitle">The selected streaming server is currently unavailable</p>
+        
+        <div class="info">
+            <div class="info-item">
+                <span class="label">Title:</span>
+                <span class="value" id="title">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Quality:</span>
+                <span class="value" id="quality">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Server:</span>
+                <span class="value" id="server">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-primary" onclick="tryAgain()">Try Again</button>
+            <button class="btn btn-secondary" onclick="goBack()">Go Back</button>
+        </div>
+        
+        <div class="status">
+            <strong>Status:</strong> This server may be temporarily down or blocked. Please try a different server or check back later.
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const title = urlParams.get('title') || 'Unknown Title';
+        const quality = urlParams.get('quality') || 'Unknown Quality';
+        const server = urlParams.get('server') || 'Unknown Server';
+        
+        // Update the page content
+        document.getElementById('title').textContent = decodeURIComponent(title);
+        document.getElementById('quality').textContent = decodeURIComponent(quality);
+        document.getElementById('server').textContent = decodeURIComponent(server);
+        
+        function tryAgain() {
+            // Try to reload the parent window or go back
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.history.back();
+            }
+        }
+        
+        function goBack() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ action: 'closePlayer' }, '*');
+            } else {
+                window.history.back();
+            }
+        }
+        
+        // Listen for messages from parent
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'closePlayer') {
+                window.close();
+            }
+        });
+    </script>
+</body>
+</html>

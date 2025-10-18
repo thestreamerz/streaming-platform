@@ -36,7 +36,7 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 <h2 className="text-xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    By accessing and using THE STREAMERZ ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                    By accessing and using STREAMERZ ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
                   </p>
                 </div>
               </section>
@@ -106,7 +106,7 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 </div>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    The service and its original content, features, and functionality are and will remain the exclusive property of THE STREAMERZ and its licensors. The service is protected by copyright, trademark, and other laws.
+                    The service and its original content, features, and functionality are and will remain the exclusive property of STREAMERZ and its licensors. The service is protected by copyright, trademark, and other laws.
                   </p>
                   <p>
                     Movie and TV show information, images, and metadata are provided by TMDB and remain the property of their respective owners.
@@ -121,7 +121,7 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 </div>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    The information on this service is provided on an "as is" basis. To the fullest extent permitted by law, THE STREAMERZ excludes all representations, warranties, conditions, and terms whether express or implied.
+                    The information on this service is provided on an "as is" basis. To the fullest extent permitted by law, STREAMERZ excludes all representations, warranties, conditions, and terms whether express or implied.
                   </p>
                   <ul className="list-disc list-inside space-y-2 ml-4">
                     <li>We do not guarantee the accuracy or completeness of content information</li>
@@ -135,7 +135,7 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 <h2 className="text-xl font-semibold text-white mb-4">7. Limitation of Liability</h2>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    In no event shall THE STREAMERZ, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.
+                    In no event shall STREAMERZ, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.
                   </p>
                 </div>
               </section>
@@ -156,7 +156,7 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 <h2 className="text-xl font-semibold text-white mb-4">9. Governing Law</h2>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    These Terms shall be interpreted and governed by the laws of the jurisdiction in which THE STREAMERZ operates, without regard to its conflict of law provisions.
+                    These Terms shall be interpreted and governed by the laws of the jurisdiction in which STREAMERZ operates, without regard to its conflict of law provisions.
                   </p>
                 </div>
               </section>
@@ -174,8 +174,8 @@ export const TermsOfService: React.FC<TermsOfServiceProps> = ({ onClose }) => {
                 <h2 className="text-xl font-semibold text-white mb-4">Contact Information</h2>
                 <div className="text-gray-300 space-y-2">
                   <p>If you have any questions about these Terms of Service, please contact us:</p>
-                  <p><strong>Email:</strong> support@thestreamerz.com</p>
-                  <p><strong>Website:</strong> THE STREAMERZ</p>
+                  <p><strong>Email:</strong> support@streamerz.online</p>
+                  <p><strong>Website:</strong> STREAMERZ</p>
                 </div>
               </section>
             </div>

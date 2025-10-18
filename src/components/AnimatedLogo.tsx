@@ -31,7 +31,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-full p-3 shadow-lg flex items-center justify-center">
           <img 
             src="/The Streamerz Logo.png" 
-            alt="THE STREAMERZ" 
+            alt="STREAMERZ" 
             className={`${sizeClasses[size]} object-contain`}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -43,7 +43,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       </div>
       {showText && (
         <span className={`${textSizeClasses[size]} font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent`}>
-          THE STREAMERZ
+          STREAMERZ
         </span>
       )}
     </div>

@@ -33,6 +33,7 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
     setLoading(true);
     try {
       let data = [];
+      console.log(`🔄 Loading recommendations for category: ${activeCategory}`);
       
       switch (activeCategory) {
         case 'trending': {
@@ -41,12 +42,17 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
             contentService.getTrendingTVShows()
           ]);
           data = [...trendingMovies.slice(0, 6), ...trendingTV.slice(0, 6)];
+          console.log(`📊 Trending data loaded: ${trendingMovies.length} movies, ${trendingTV.length} TV shows`);
           break;
         }
 
         case 'top-rated': {
-          const popularMovies = await contentService.getPopularMovies();
-          data = popularMovies.slice(0, 12);
+          const [topRatedMovies, topRatedTV] = await Promise.all([
+            contentService.getTopRatedMovies(),
+            contentService.getTopRatedTVShows()
+          ]);
+          data = [...topRatedMovies.slice(0, 6), ...topRatedTV.slice(0, 6)];
+          console.log(`⭐ Top rated data loaded: ${topRatedMovies.length} movies, ${topRatedTV.length} TV shows`);
           break;
         }
 
@@ -54,6 +60,7 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
           // Mock personalized recommendations based on user preferences
           const likedContent = await contentService.getPopularMovies();
           data = likedContent.slice(0, 12);
+          console.log(`❤️ Because you liked data loaded: ${likedContent.length} items`);
           break;
         }
 
@@ -64,15 +71,23 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
             contentService.getTrendingMovies()
           ]);
           data = [...popularContent.slice(0, 6), ...trending.slice(0, 6)];
+          console.log(`🎯 For you data loaded: ${popularContent.length} popular, ${trending.length} trending`);
         }
       }
       
+      console.log(`✅ Final recommendations data: ${data.length} items`);
       setRecommendations(data);
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      console.error('❌ Error loading recommendations:', error);
       // Provide fallback recommendations
-      const fallbackContent = await contentService.getAllContent();
-      setRecommendations(fallbackContent.slice(0, 12));
+      try {
+        const fallbackContent = await contentService.getAllContent();
+        console.log(`🔄 Using fallback content: ${fallbackContent.length} items`);
+        setRecommendations(fallbackContent.slice(0, 12));
+      } catch (fallbackError) {
+        console.error('❌ Fallback content failed:', fallbackError);
+        setRecommendations([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -89,7 +104,7 @@ export const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsPr
       case 'because-you-liked':
         return `More like what you've enjoyed, ${userName}`;
       case 'top-rated':
-        return "The highest rated content on THE STREAMERZ";
+        return "The highest rated content on STREAMERZ";
       default:
         return "Discover something new";
     }

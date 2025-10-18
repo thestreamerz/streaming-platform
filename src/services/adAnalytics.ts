@@ -261,7 +261,7 @@ class AdAnalyticsService {
         };
         
         const statsRef = doc(db, 'adDailyStats', `${statsData.date}_${adId}`);
-        await updateDoc(statsRef, statsData);
+        await setDoc(statsRef, statsData, { merge: true });
       } catch (createError) {
         console.error('Error creating daily stats:', createError);
       }

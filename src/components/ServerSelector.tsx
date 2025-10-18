@@ -22,7 +22,7 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({
   }, []);
 
   const loadServers = () => {
-    const activeServers = enhancedStreamingService.getActiveServers();
+    const activeServers = enhancedStreamingService.getWorkingServers();
     setServers(activeServers);
     
     // Set default selection to first primary server
@@ -38,7 +38,9 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({
     setTesting(prev => ({ ...prev, [serverId]: true }));
     
     try {
-      const isOnline = await enhancedStreamingService.testServer(serverId);
+      const results = await enhancedStreamingService.testServerConnectivity();
+      const server = servers.find(s => s.id === serverId);
+      const isOnline = server ? results[server.name] : false;
       setServerStatus(prev => ({ ...prev, [serverId]: isOnline }));
     } catch (error) {
       setServerStatus(prev => ({ ...prev, [serverId]: false }));
@@ -55,6 +57,10 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({
         return <Crown className="w-4 h-4" />;
       case 'backup':
         return <Shield className="w-4 h-4" />;
+      case 'torrent':
+        return <Download className="w-4 h-4" />;
+      case 'cloud':
+        return <Zap className="w-4 h-4" />;
       default:
         return <Play className="w-4 h-4" />;
     }
@@ -68,6 +74,10 @@ export const ServerSelector: React.FC<ServerSelectorProps> = ({
         return 'from-yellow-500 to-orange-500';
       case 'backup':
         return 'from-gray-500 to-gray-600';
+      case 'torrent':
+        return 'from-red-500 to-red-600';
+      case 'cloud':
+        return 'from-green-500 to-green-600';
       default:
         return 'from-slate-500 to-slate-600';
     }

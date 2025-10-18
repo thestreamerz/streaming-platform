@@ -112,7 +112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
 
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">
-            {isLogin ? 'Welcome Back' : 'Join THE STREAMERZ'}
+            {isLogin ? 'Welcome Back' : 'Join STREAMERZ'}
           </h2>
           <p className="text-gray-400">
             {isLogin ? 'Sign in to continue watching' : 'Create your account to get started'}

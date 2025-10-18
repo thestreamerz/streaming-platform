@@ -40,21 +40,20 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
     return item.genre_ids.slice(0, 2).join(', ');
   };
 
-  // Enhanced main card click handler - opens video player
+  // Enhanced main card click handler - open details modal by default
   const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // Do not call preventDefault or stopPropagation here so click can bubble to global listeners if needed
     
     if (isClicked) return; // Prevent double-clicking
     
-    console.log('🎬 Card clicked:', title, 'Type:', type);
+    console.log('🛈 Card clicked (open details):', title, 'Type:', type);
     setIsClicked(true);
     
-    // Call the onWatch function immediately
+    // Open the details modal
     try {
-      onWatch(item, type);
+      onSelect(item, type);
     } catch (error) {
-      console.error('Error calling onWatch:', error);
+      console.error('Error calling onSelect:', error);
     }
     
     // Reset click state after animation
@@ -64,14 +63,12 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
   // Enhanced button click handlers with proper event handling
   const handleWatchClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     console.log('▶️ Watch button clicked:', title);
     onWatch(item, type);
   };
 
   const handleInfoClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     console.log('ℹ️ Info button clicked:', title);
     onSelect(item, type);
   };
@@ -98,7 +95,7 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick} // Make entire card clickable
-      title={`Click to watch ${title}`} // Add tooltip
+      title={`Open details for ${title}`} // Add tooltip
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -158,17 +155,35 @@ export const EnhancedMediaCard: React.FC<EnhancedMediaCardProps> = ({
             </div>
           )}
 
-          {/* Play Button Overlay - Shows on hover */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 ${
+          {/* Hover overlay - informative only, does not capture clicks */}
+          <div className={`pointer-events-none absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}>
             <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 border-2 border-white/30 mb-2">
-              <Play className="w-8 h-8 text-white fill-current" />
+              <Info className="w-8 h-8 text-white" />
             </div>
-            <div className="bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-              Click to Watch
+            <div className="bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Click for Details
             </div>
           </div>
+        </div>
+
+        {/* Mobile quick actions (always visible on small screens) */}
+        <div className="p-3 sm:hidden flex items-center justify-between border-t border-slate-700 bg-slate-800">
+          <button 
+            onClick={handleWatchClick}
+            className="flex-1 mr-2 px-3 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            type="button"
+          >
+            Play
+          </button>
+          <button 
+            onClick={handleInfoClick}
+            className="flex-1 ml-2 px-3 py-2 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"
+            type="button"
+          >
+            Details
+          </button>
         </div>
 
         {/* Hover Content */}

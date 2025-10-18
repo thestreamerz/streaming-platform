@@ -91,7 +91,7 @@ class TMDBService {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
-            'User-Agent': 'THE STREAMERZ/2.0',
+            'User-Agent': 'STREAMERZ/2.0',
             'Cache-Control': 'no-cache'
           }
         });
@@ -308,7 +308,7 @@ class TMDBService {
     }
   }
 
-  // Enhanced movie details
+  // Enhanced movie details with better error handling
   async getMovieDetails(movieId: number): Promise<Movie | null> {
     try {
       const [details, credits, videos, similar] = await Promise.all([
@@ -319,10 +319,11 @@ class TMDBService {
       ]);
 
       if (!details || !details.id) {
-        throw new Error('Movie details not found');
+        console.warn('Movie details not found for ID:', movieId);
+        return null;
       }
 
-      const director = credits.crew?.find((person: any) => person.job === 'Director');
+      const director = credits?.crew?.find((person: any) => person.job === 'Director');
 
       return {
         ...details,
@@ -330,10 +331,10 @@ class TMDBService {
         vote_average: details.vote_average || 0,
         poster_path: details.poster_path || '',
         backdrop_path: details.backdrop_path || details.poster_path || '',
-        cast: (credits.cast || []).slice(0, 10),
+        cast: (credits?.cast || []).slice(0, 10),
         director: director?.name || 'Unknown',
-        videos: (videos.results || []).filter((video: any) => video.site === 'YouTube'),
-        similar: (similar.results || []).slice(0, 6)
+        videos: (videos?.results || []).filter((video: any) => video.site === 'YouTube'),
+        similar: (similar?.results || []).slice(0, 6)
       };
     } catch (error) {
       console.error('Error loading movie details:', error);
@@ -561,9 +562,12 @@ class TMDBService {
         const url = new URL(testUrl);
         url.searchParams.append('api_key', apiKey);
         
+        const signal = (AbortSignal as any)?.timeout
+          ? (AbortSignal as any).timeout(5000)
+          : (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })();
         const response = await fetch(url.toString(), { 
           method: 'HEAD',
-          signal: AbortSignal.timeout(5000)
+          signal
         });
         
         results[`API Key ${i + 1}`] = response.ok;

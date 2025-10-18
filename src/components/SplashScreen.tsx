@@ -51,7 +51,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   }, [duration, onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center z-50 overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center z-[100000] overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
         {/* Floating particles */}
@@ -83,7 +83,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
                 src="/The Streamerz Logo.png" 
-                alt="THE STREAMERZ" 
+                alt="STREAMERZ" 
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -97,7 +97,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
         {/* Platform Name with Typewriter Effect */}
         <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-clip-text text-transparent mb-2 animate-text-reveal">
-          THE STREAMERZ
+          STREAMERZ
         </h1>
 
         {/* Tagline */}

@@ -199,7 +199,7 @@ class MultiSourceAPIService {
           signal: controller.signal,
           headers: {
             'Accept': 'application/json',
-            'User-Agent': 'THE STREAMERZ/2.0',
+            'User-Agent': 'STREAMERZ/2.0',
             'Cache-Control': 'no-cache'
           }
         });
@@ -503,9 +503,12 @@ class MultiSourceAPIService {
           url.searchParams.append('api_key', source.apiKey);
         }
         
+        const signal = (AbortSignal as any)?.timeout
+          ? (AbortSignal as any).timeout(5000)
+          : (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })();
         const response = await fetch(url.toString(), { 
           method: 'HEAD',
-          signal: AbortSignal.timeout(5000)
+          signal
         });
         
         contentResults[source.name] = response.ok;
@@ -518,9 +521,12 @@ class MultiSourceAPIService {
     for (const server of this.streamingServers) {
       try {
         const testUrl = this.buildMovieStreamingUrl(server, 550); // Test with Fight Club
+        const signal = (AbortSignal as any)?.timeout
+          ? (AbortSignal as any).timeout(5000)
+          : (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })();
         const response = await fetch(testUrl, { 
           method: 'HEAD',
-          signal: AbortSignal.timeout(5000)
+          signal
         });
         
         streamingResults[server.name] = response.ok;

@@ -18,6 +18,9 @@ googleProvider.addScope('email');
 googleProvider.addScope('profile');
 
 export const signInWithGoogle = async () => {
+  if (!auth) {
+    throw new Error('Firebase auth is not initialized');
+  }
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
@@ -54,6 +57,9 @@ export const signInWithGoogle = async () => {
 };
 
 export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  if (!auth) {
+    throw new Error('Firebase auth is not initialized');
+  }
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const user = result.user;
@@ -87,6 +93,9 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
+  if (!auth) {
+    throw new Error('Firebase auth is not initialized');
+  }
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
@@ -108,6 +117,9 @@ export const signInWithEmail = async (email: string, password: string) => {
   }
 };
 export const signOut = async () => {
+  if (!auth) {
+    throw new Error('Firebase auth is not initialized');
+  }
   try {
     await firebaseSignOut(auth);
   } catch (error) {
@@ -117,6 +129,11 @@ export const signOut = async () => {
 };
 
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
+  if (!auth) {
+    console.error('Firebase auth is not initialized');
+    // Return a no-op unsubscribe function
+    return () => {};
+  }
   return onAuthStateChanged(auth, callback);
 };
 
